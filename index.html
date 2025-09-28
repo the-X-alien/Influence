@@ -3,985 +3,840 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Sacrifices Must Be Made — Extended Build</title>
+<title>Sacrifices Must Be Made — All-in-One Build</title>
 <style>
   :root{
-    --bg:#071018; --panel:#0f1720; --muted:#9aa4b2;
+    --bg:#071018; --panel:#0e1620; --muted:#9aa4b2;
     --accent:#c94dff; --accent-2:#ffb86b; --danger:#ff6b6b; --good:#6bffb8;
-    --glass: rgba(255,255,255,0.04);
-    font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
   }
-  html,body{height:100%; margin:0; background:linear-gradient(180deg,#03040a 0%, #071018 70%); color:#e7eef8; -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;}
-  /* Layout */
+  html,body{height:100%; margin:0; background:linear-gradient(180deg,#02030a,#071018 70%); color:#e7eef8; -webkit-font-smoothing:antialiased;}
   #wrap{position:fixed; inset:0; display:flex; flex-direction:column;}
-  header{display:flex; justify-content:space-between; align-items:center; padding:14px 20px; gap:12px; pointer-events:none;}
-  .panel{pointer-events:auto; background:linear-gradient(180deg,rgba(255,255,255,0.02),transparent); padding:12px; border-radius:12px; box-shadow:0 8px 40px rgba(1,6,16,0.6); border:1px solid rgba(255,255,255,0.03)}
-  .leftRow{display:flex; gap:12px; align-items:center;}
-  .meter{display:flex; gap:10px; align-items:center;}
-  .bar {width:220px; height:14px; background:rgba(255,255,255,0.04); border-radius:10px; overflow:hidden; box-shadow:inset 0 -4px 14px rgba(0,0,0,0.6);}
-  .bar > i{display:block; height:100%; width:0%; transition:width 0.2s ease;}
-  button {background:transparent; border:1px solid rgba(255,255,255,0.06); color:inherit; padding:8px 12px; border-radius:10px; cursor:pointer; font-weight:600;}
-  button.primary {background:linear-gradient(90deg,var(--accent),var(--accent-2)); color:#081018; border:none;}
-  .small {font-size:12px; color:var(--muted);}
-  main{position:relative; flex:1; display:flex; align-items:stretch; gap:16px; padding:8px 20px 20px;}
-  canvas{flex:1; border-radius:14px; background:transparent; display:block; width:100%; height:100%;}
-  aside{width:360px; display:flex; flex-direction:column; gap:12px;}
-  .section{padding:12px; border-radius:12px; background:linear-gradient(180deg, rgba(255,255,255,0.015), transparent); border:1px solid rgba(255,255,255,0.02)}
-  h1{font-size:18px;margin:0}
-  h2{font-size:15px;margin:0 0 6px 0}
+  header{display:flex; justify-content:space-between; align-items:center; padding:12px 16px; gap:12px; pointer-events:none;}
+  .panel{pointer-events:auto; background:linear-gradient(180deg,rgba(255,255,255,0.02),transparent); padding:10px; border-radius:12px; box-shadow:0 8px 30px rgba(0,0,0,0.6); border:1px solid rgba(255,255,255,0.03)}
+  .bar{width:220px;height:12px;background:rgba(255,255,255,0.04);border-radius:10px; overflow:hidden}
+  .bar > i{display:block;height:100%;width:0%;transition:width 0.18s linear}
+  button{background:transparent;border:1px solid rgba(255,255,255,0.06);color:inherit;padding:8px 10px;border-radius:9px;cursor:pointer;font-weight:600}
+  button.primary{background:linear-gradient(90deg,var(--accent),var(--accent-2)); color:#071018;border:none}
+  main{position:relative;flex:1;display:flex;gap:12px;padding:10px;}
+  canvas{flex:1;border-radius:12px;display:block;width:100%;height:calc(100vh - 170px)}
+  aside{width:340px;display:flex;flex-direction:column;gap:12px}
   .muted{color:var(--muted)}
-  .stat-row{display:flex; gap:8px; align-items:center; margin-top:8px;}
-  .stat {flex:1; padding:8px; border-radius:10px; background:rgba(255,255,255,0.02); text-align:center;}
-  .choices {display:flex; gap:8px; flex-wrap:wrap; margin-top:10px;}
-  .choice {flex:1; min-width:140px; padding:10px; border-radius:10px; background:linear-gradient(180deg, rgba(255,255,255,0.016), transparent); border:1px solid rgba(255,255,255,0.025); cursor:pointer; text-align:center;}
-  footer{padding:12px 20px; display:flex; justify-content:space-between; align-items:center;}
-  .big{font-weight:700; font-size:16px}
-  .centerOverlay{position:fixed; left:50%; top:50%; transform:translate(-50%,-50%); z-index:60; display:flex; justify-content:center; align-items:center}
-  .modal {position:fixed; inset:0; display:none; align-items:center; justify-content:center; background:linear-gradient(rgba(3,5,12,0.6), rgba(3,5,12,0.8)); z-index:80;}
-  .card{background:linear-gradient(180deg,#0d1320 0%, #07101a 100%); border-radius:14px; padding:18px; color:#e8f2ff; width:820px; max-width:96vw; box-shadow:0 20px 60px rgba(0,0,0,0.7);}
-  .seedline{font-family:monospace; font-size:12px; color:var(--muted)}
-  .upgrade {display:flex; gap:8px; align-items:center; padding:8px; border-radius:10px; border:1px solid rgba(255,255,255,0.02); background:rgba(255,255,255,0.01); cursor:pointer;}
-  .progressRow{display:flex; gap:8px; align-items:center;}
-  .tiny{font-size:12px}
-  /* responsive */
-  @media (max-width:980px){ aside{display:none} header{padding:12px} main{padding:8px} }
+  h1{font-size:18px;margin:0}
+  .choice{padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,0.02);background:rgba(255,255,255,0.01);cursor:pointer}
+  .modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:linear-gradient(rgba(2,4,8,0.6),rgba(3,6,12,0.86));z-index:80}
+  .card{background:linear-gradient(180deg,#0b1220,#061018);padding:16px;border-radius:12px;color:#eaf3ff;width:760px;max-width:94vw;box-shadow:0 20px 60px rgba(0,0,0,0.6)}
+  .tiny{font-size:12px;color:var(--muted)}
+  .stat{background:rgba(255,255,255,0.02);padding:10px;border-radius:10px;text-align:center}
+  .center{display:flex;gap:8px;align-items:center}
+  footer{padding:10px 16px;display:flex;justify-content:space-between;align-items:center}
+  @media (max-width:980px){aside{display:none}}
 </style>
 </head>
 <body>
 <div id="wrap">
   <header>
-    <div class="leftRow">
-      <div class="panel" style="display:flex;gap:12px;align-items:center">
-        <div>
-          <div class="small">Cult Influence</div>
-          <div class="bar" style="width:220px"><i id="influenceBar"></i></div>
+    <div class="center">
+      <div class="panel center" style="gap:10px">
+        <div style="margin-right:6px">
+          <div style="font-size:12px;color:var(--muted)">Cult Influence</div>
+          <div class="bar"><i id="influenceBar" style="background:linear-gradient(90deg,var(--accent),#ffd18a)"></i></div>
         </div>
-        <div>
-          <div class="small">Guilt</div>
-          <div class="bar" style="width:220px"><i id="guiltBar" style="background:linear-gradient(90deg,var(--danger),var(--accent-2))"></i></div>
+        <div style="margin-left:4px">
+          <div style="font-size:12px;color:var(--muted)">Guilt</div>
+          <div class="bar"><i id="guiltBar" style="background:linear-gradient(90deg,var(--danger),#ffb86b)"></i></div>
         </div>
       </div>
       <div style="width:12px"></div>
-      <div class="panel small muted">Wave <span id="waveNum">1</span> • Time <span id="runTime">00:00</span></div>
+      <div class="panel tiny muted">Wave <span id="waveNum">1</span> • Time <span id="runTime">00:00</span></div>
     </div>
 
-    <div style="display:flex;gap:10px;align-items:center">
-      <div class="panel small muted">Score <span id="scoreTxt">0</span></div>
+    <div style="display:flex;gap:8px;align-items:center">
+      <div class="panel tiny muted">Score <span id="scoreTxt">0</span></div>
       <button id="pauseBtn">Pause</button>
-      <button id="restartBtn">Menu</button>
+      <button id="menuBtn">Menu</button>
     </div>
   </header>
 
   <main>
-    <canvas id="c"></canvas>
-
+    <canvas id="gameCanvas"></canvas>
     <aside>
-      <div class="section">
-        <h2>Steward Info</h2>
-        <div class="muted small">Manage Influence and Guilt. Spend Influence on rituals & upgrades at interludes.</div>
-        <div class="stat-row">
-          <div class="stat"><div class="big" id="infTxt">10</div><div class="small muted">Influence</div></div>
-          <div class="stat"><div class="big" id="gultxt">0</div><div class="small muted">Guilt</div></div>
+      <div class="panel">
+        <h1>Steward</h1>
+        <div class="tiny muted">Manage the ritual balance. Spend Influence to buy upgrades during interludes.</div>
+        <div style="display:flex;gap:8px;margin-top:10px">
+          <div class="stat"><div id="infTxt" style="font-weight:700">10</div><div class="tiny muted">Influence</div></div>
+          <div class="stat"><div id="gltxt" style="font-weight:700">0</div><div class="tiny muted">Guilt</div></div>
         </div>
-
-        <div style="margin-top:10px">
-          <div class="small muted">Active Effects</div>
-          <div id="effectsList" style="margin-top:6px; display:flex;flex-direction:column;gap:6px"></div>
-        </div>
+        <div id="effectsList" style="margin-top:10px"></div>
       </div>
 
-      <div class="section">
-        <h2>Offer Pool</h2>
-        <div class="muted small">Selectable offers fall each wave — each has different risk/reward and mini-game type.</div>
-        <div id="offerList" style="margin-top:8px; display:flex; flex-direction:column; gap:8px; max-height:220px; overflow:auto"></div>
+      <div class="panel">
+        <h1>Offer Pool</h1>
+        <div class="tiny muted">Click "Attempt" to initiate a ritual mini-game.</div>
+        <div id="offerList" style="margin-top:10px;display:flex;flex-direction:column;gap:8px;max-height:260px;overflow:auto"></div>
       </div>
 
-      <div class="section">
-        <h2>Progress & Upgrades</h2>
-        <div class="muted small">Between chapters you can spend Influence to unlock quality-of-life and story modifiers.</div>
-        <div id="upgradePanel" style="margin-top:8px; display:flex; flex-direction:column; gap:8px"></div>
+      <div class="panel">
+        <h1>Upgrades</h1>
+        <div class="tiny muted">Buy temporary and permanent modifiers during interludes.</div>
+        <div id="upgradeList" style="margin-top:10px;display:flex;flex-direction:column;gap:8px"></div>
       </div>
-
     </aside>
   </main>
 
   <footer>
-    <div class="panel small muted">Sacrifices Must Be Made — Extended Build</div>
+    <div class="panel tiny muted">Sacrifices Must Be Made — Single-file Build</div>
     <div style="display:flex;gap:8px">
       <button id="shareBtn">Share Ending</button>
-      <button id="startBtn" class="primary">Start / Resume</button>
+      <button id="startResume" class="primary">Start / Resume</button>
     </div>
   </footer>
 </div>
 
-<!-- Modal overlays -->
+<!-- Menu modal -->
 <div id="menuModal" class="modal" style="display:flex">
   <div class="card">
     <div style="display:flex;justify-content:space-between;align-items:center">
       <div>
         <h1>Sacrifices Must Be Made</h1>
-        <div class="muted small">Extended Experience — ~30 minute runs, richer GUI, more endings & interludes</div>
+        <div class="tiny muted">Single-file build — ~30 minute runs, polished GUI, embedded visuals & procedural OST</div>
       </div>
-      <div style="text-align:right">
-        <div class="seedline" id="buildId">Build: α-extended</div>
-        <div style="height:10px"></div>
-        <button id="startGameBtn" class="primary">Start New Run</button>
+      <div>
+        <div class="tiny" id="buildId">Build: singlefile-embed-1</div>
+        <div style="height:8px"></div>
+        <button id="startBtn" class="primary">Start New Run</button>
       </div>
     </div>
 
-    <div style="display:flex; gap:12px; margin-top:14px;">
+    <div style="display:flex;gap:12px;margin-top:12px">
       <div style="flex:1">
-        <h2 class="tiny">Playstyle</h2>
-        <div class="muted small">Choose a starting boon</div>
-        <div class="choices" id="starterChoices">
-          <div class="choice" data-which="balanced">Balanced Steward<br><small class="muted">+5 Influence, neutral</small></div>
-          <div class="choice" data-which="merciless">Merciless<br><small class="muted">+12 Influence, +10 Guilt</small></div>
-          <div class="choice" data-which="merciful">Merciful<br><small class="muted">+0 Influence, -10 Guilt</small></div>
+        <div class="tiny">Playstyle</div>
+        <div style="display:flex;gap:8px;margin-top:8px">
+          <div class="choice" data-st="balanced">Balanced • +6 Influence</div>
+          <div class="choice" data-st="merciless">Merciless • +12I +10G</div>
+          <div class="choice" data-st="merciful">Merciful • -10G</div>
         </div>
       </div>
-      <div style="width:320px">
-        <h2 class="tiny">Play Length & Difficulty</h2>
-        <div class="muted small">This extended build is tuned so a complete run with interludes and choices takes ~30 minutes for a typical player.</div>
-        <div style="height:12px"></div>
-        <div class="small muted">Difficulty</div>
+      <div style="width:260px">
+        <div class="tiny">Difficulty</div>
         <div style="display:flex;gap:8px;margin-top:8px">
-          <button class="choice" data-diff="easy">Easy</button>
-          <button class="choice" data-diff="normal">Normal</button>
-          <button class="choice" data-diff="hard">Hard</button>
+          <div class="choice" data-d="easy">Easy</div>
+          <div class="choice" data-d="normal" style="outline:2px solid rgba(201,77,255,0.12)">Normal</div>
+          <div class="choice" data-d="hard">Hard</div>
         </div>
+        <div class="tiny muted" style="margin-top:8px">This build aims for ~30 minutes with normal difficulty.</div>
       </div>
     </div>
 
-    <div style="text-align:right; margin-top:12px">
-      <div class="muted small">Tip: interludes are where story + upgrades live — spend time there.</div>
+    <div style="text-align:right;margin-top:12px">
+      <div class="tiny muted">Tip: interludes contain upgrades and story choices.</div>
     </div>
   </div>
 </div>
 
-<div id="interludeModal" class="modal" style="display:none">
-  <div class="card" id="interludeCard"></div>
-</div>
-
-<div id="endingModal" class="modal" style="display:none">
-  <div class="card" id="endingCard"></div>
-</div>
+<!-- Interlude / QTE / Ending modals -->
+<div id="overlayModal" class="modal"><div class="card" id="overlayCard"></div></div>
+<div id="endingModal" class="modal"><div class="card" id="endingCard"></div></div>
 
 <script>
-/* =========================================================
-   Extended build — polished, longer (~30min) run + GUI
-   Single-file, no external assets. Drop-in for itch.io.
-   ========================================================= */
+/* ============================
+   Single-file standalone game
+   Assets embedded inline (SVG data URIs)
+   OST: procedural WebAudio (compact + dynamic)
+   ============================ */
 
 /* --- Utilities --- */
-const $ = (id)=>document.getElementById(id);
-const nowMs = ()=>performance.now();
+const $ = id => document.getElementById(id);
+const clamp = (v,a,b)=>Math.max(a,Math.min(b,v));
+const now = ()=>performance.now();
 
 /* --- Canvas setup --- */
-const canvas = $('c');
-const ctx = canvas.getContext('2d', {alpha:false});
-function resize(){
+const canvas = $('gameCanvas');
+const ctx = canvas.getContext('2d', { alpha: false });
+function resize(){ 
   canvas.width = Math.floor(window.innerWidth * devicePixelRatio);
-  canvas.height = Math.floor((window.innerHeight - 140) * devicePixelRatio); // header/footer
+  canvas.height = Math.floor((window.innerHeight - 160) * devicePixelRatio);
   canvas.style.width = window.innerWidth + 'px';
-  canvas.style.height = (window.innerHeight - 140) + 'px';
+  canvas.style.height = (window.innerHeight - 160) + 'px';
   ctx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0);
 }
 window.addEventListener('resize', resize);
 resize();
 
-/* --- Audio: loopable ambient + sfx (WebAudio) --- */
-class AudioEngine {
+/* --- Embedded SVG assets as data URIs ---
+   Small, stylized vector icons to keep file tiny & crisp.
+   Each is a data:image/svg+xml;utf8,... string.
+*/
+const SVG = {
+  altar: encodeURI(`data:image/svg+xml;utf8,
+  <svg xmlns="http://www.w3.org/2000/svg" width="256" height="128" viewBox="0 0 256 128">
+    <rect x="24" y="60" rx="12" ry="12" width="208" height="40" fill="#0f1116" stroke="#0b0f14" stroke-width="2"/>
+    <rect x="56" y="36" rx="10" ry="10" width="144" height="32" fill="#0b1016" stroke="#0c1116" stroke-width="2"/>
+    <g transform="translate(128,34)">
+      <path d="M0,28 C-10,8 -6,-6 0,-18 C6,-6 10,8 0,28Z" fill="#ffb86b" opacity="0.95"/>
+      <ellipse cx="0" cy="36" rx="36" ry="8" fill="rgba(0,0,0,0.4)"/>
+    </g>
+  </svg>`),
+  cultist: encodeURI(`data:image/svg+xml;utf8,
+  <svg xmlns="http://www.w3.org/2000/svg" width="96" height="140" viewBox="0 0 96 140">
+    <rect x="20" y="56" width="56" height="60" rx="8" fill="#1b2230"/>
+    <circle cx="48" cy="36" r="24" fill="#ffd9b8"/>
+    <path d="M48 12 Q40 20 48 28 Q56 20 48 12Z" fill="#9422aa" opacity="0.85"/>
+    <path d="M28 56 C28 44 68 44 68 56" stroke="#0b0f14" stroke-width="4" fill="none"/>
+  </svg>`),
+  villager: encodeURI(`data:image/svg+xml;utf8,
+  <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
+    <circle cx="32" cy="20" r="12" fill="#ffd6a5"/>
+    <rect x="16" y="32" width="32" height="24" rx="6" fill="#b3745a"/>
+  </svg>`),
+  relic: encodeURI(`data:image/svg+xml;utf8,
+  <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
+    <rect x="14" y="10" width="36" height="44" rx="6" fill="#dbefff" stroke="#bde0fe" stroke-width="2"/>
+    <circle cx="32" cy="32" r="8" fill="#ffd18a"/>
+  </svg>`),
+  beast: encodeURI(`data:image/svg+xml;utf8,
+  <svg xmlns="http://www.w3.org/2000/svg" width="72" height="72" viewBox="0 0 72 72">
+    <ellipse cx="36" cy="38" rx="26" ry="16" fill="#ffc6ff"/>
+    <circle cx="26" cy="30" r="4" fill="#041018"/>
+    <circle cx="46" cy="30" r="4" fill="#041018"/>
+    <path d="M20 42 C30 50 42 50 52 42" stroke="#a02a6b" stroke-width="3" fill="none"/>
+  </svg>`),
+  shard: encodeURI(`data:image/svg+xml;utf8,
+  <svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 60 60">
+    <polygon points="30,6 50,30 30,54 10,30" fill="#d1ffc4" stroke="#9fcf90" stroke-width="2"/>
+  </svg>`)
+};
+
+/* --- Procedural audio engine (loopable OST + sfx) --- */
+class SoundEngine {
   constructor(){
     this.ctx = null;
     this.master = null;
-    this.bass = null;
-    this.isRunning = false;
+    this.isStarted = false;
+    this.loopNodes = [];
   }
   ensure(){
     if(this.ctx) return;
     this.ctx = new (window.AudioContext || window.webkitAudioContext)();
-    this.master = this.ctx.createGain(); this.master.gain.value = 0.22; this.master.connect(this.ctx.destination);
-    // create a gentle drone + sequenced pluck pattern
-    this.createLoop();
+    this.master = this.ctx.createGain();
+    this.master.gain.value = 0.20;
+    this.master.connect(this.ctx.destination);
+    // create ambient layers
+    this.createAmbient();
+    // create rhythmic pulses
+    this.createPulse();
+  }
+  start(){
+    this.ensure();
+    if(this.isStarted) return;
+    this.loopNodes.forEach(n=>n.start());
+    this.isStarted = true;
   }
   createOsc(freq, type='sine'){ const o = this.ctx.createOscillator(); o.type = type; o.frequency.value = freq; return o; }
-  createLoop(){
-    // drone
-    const drone = this.createOsc(55,'sine');
-    const drain = this.ctx.createGain(); drain.gain.value = 0.0001;
-    drone.connect(drain); drain.connect(this.master); drone.start();
-    // slow amplitude modulation
-    const lfo = this.createOsc(0.08,'sine');
-    const lfoGain = this.ctx.createGain(); lfoGain.gain.value = 0.22;
-    lfo.connect(lfoGain); lfoGain.connect(drain.gain); lfo.start();
-
-    // sequence: soft plucks using noise->filter->env
-    this.loopInterval = setInterval(()=> this.triggerPluck(), 1200);
+  createAmbient(){
+    // low drone
+    const o = this.createOsc(48,'sine');
+    const g = this.ctx.createGain(); g.gain.value = 0.03;
+    o.connect(g); g.connect(this.master);
+    // slow detuned pad
+    const o2 = this.createOsc(64,'sine');
+    const g2 = this.ctx.createGain(); g2.gain.value = 0.02;
+    o2.connect(g2); g2.connect(this.master);
+    // slight tremolo
+    const lfo = this.createOsc(0.07,'sine'); const lfoG = this.ctx.createGain(); lfoG.gain.value = 0.02;
+    lfo.connect(lfoG); lfoG.connect(g.gain); lfo.start();
+    o.start(); o2.start();
+    this.loopNodes.push(o, o2);
   }
-  triggerPluck(){
-    const ctx = this.ctx;
-    const t = ctx.currentTime;
-    const osc = ctx.createOscillator();
-    const g = ctx.createGain();
-    osc.type = 'triangle';
-    osc.frequency.value = 220 + (Math.random() * 80 - 40);
-    g.gain.value = 0.0;
-    osc.connect(g); g.connect(this.master);
-    osc.start(t); 
-    g.gain.setValueAtTime(0.0, t);
-    g.gain.linearRampToValueAtTime(0.08, t+0.02);
-    g.gain.exponentialRampToValueAtTime(0.001, t+0.8);
-    osc.stop(t+1.1);
+  createPulse(){
+    // create a soft percussive loop via buffer approach
+    const o = this.createOsc(220,'triangle');
+    const g = this.ctx.createGain(); g.gain.value = 0.0;
+    o.connect(g); g.connect(this.master);
+    // envelope triggered periodically
+    const trigger = ()=> {
+      const t = this.ctx.currentTime;
+      g.gain.cancelScheduledValues(t);
+      g.gain.setValueAtTime(0.0, t);
+      g.gain.linearRampToValueAtTime(0.06, t+0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, t+0.8);
+    };
+    // schedule it every 1.2s
+    const interval = setInterval(trigger, 1200);
+    this.loopNodes.push(o);
+    // keep interval ref to clear later (unused here)
   }
   beep(freq=880, time=0.06, type='sine'){
     this.ensure();
-    const o = this.ctx.createOscillator();
-    const g = this.ctx.createGain();
-    o.type = type; o.frequency.value = freq; g.gain.value = 0.06;
+    const o = this.createOsc(freq, type);
+    const g = this.ctx.createGain(); g.gain.value = 0.0001;
     o.connect(g); g.connect(this.master);
-    o.start(); o.stop(this.ctx.currentTime + time);
+    const t = this.ctx.currentTime;
+    g.gain.setValueAtTime(0.0001,t);
+    g.gain.linearRampToValueAtTime(0.06, t+0.01);
+    g.gain.exponentialRampToValueAtTime(0.0001, t+time);
+    o.start(t); o.stop(t + time + 0.05);
   }
   buzz(time=0.08){
-    this.ensure();
-    const o = this.ctx.createOscillator(); const g = this.ctx.createGain();
-    o.type = 'square'; o.frequency.value = 120; g.gain.value = 0.04;
-    o.connect(g); g.connect(this.master); o.start(); o.stop(this.ctx.currentTime + time);
+    this.beep(120, time, 'square');
   }
-  startIfNeeded(){ if(!this.ctx){ this.ensure(); } }
 }
-const audio = new AudioEngine();
+const SND = new SoundEngine();
 
-/* --- Game state & tuning for ~30 minute runs --- */
+/* --- Game state tuned for ~30 min runs --- */
 let running = false, paused = false;
-let difficulty = 'normal'; // easy | normal | hard
-let startAt = 0; // perf
-let elapsed = 0;
-let wave = 0;
-let maxWaves = 12; // extended number of waves; interludes between waves make run ~30mins
-let influence = 0, guilt = 0;
+let difficulty = 'normal';
+let startTime = 0, elapsed = 0;
+let wave = 0, maxWaves = 10;
+let influence = 10, guilt = 0, score = 0;
 let offers = [], particles = [], effects = [];
-let score = 0;
-let lastSpawn = 0;
-let playerSeed = Math.floor(Math.random()*1e9);
-let startChoice = 'balanced';
-let chosenDiff = 'normal';
+let lastSpawnAt = 0, spawnFreq = 1100;
+let rng = ()=>Math.random();
 
 /* UI refs */
-const influenceBar = $('influenceBar');
-const guiltBar = $('guiltBar');
-const waveNum = $('waveNum');
-const scoreTxt = $('scoreTxt');
-const infTxt = $('infTxt');
-const gultxt = $('gultxt');
-const effectsList = $('effectsList');
-const offerList = $('offerList');
-const upgradePanel = $('upgradePanel');
-const runTime = $('runTime');
+const influenceBar = $('influenceBar'), guiltBar = $('guiltBar');
+const waveNum = $('waveNum'), runTime = $('runTime'), scoreTxt = $('scoreTxt');
+const infTxt = $('infTxt'), gltxt = $('gltxt');
+const offerList = $('offerList'), upgradeList = $('upgradeList'), effectsList = $('effectsList');
 
-/* Offer definitions — more variety and mini-game types */
-const OFFER_DEFS = [
-  {id:'villager', label:'Villager', baseI:12, baseG:8, speed: 45, color:'#ffd6a5', qte:'timing'},
-  {id:'relic', label:'Ancient Relic', baseI:10, baseG:4, speed: 55, color:'#bde0fe', qte:'pattern'},
-  {id:'beast', label:'Captive Beast', baseI:18, baseG:14, speed: 40, color:'#ffc6ff', qte:'hold'},
-  {id:'child', label:'Child of Dawn', baseI:34, baseG:28, speed: 32, color:'#ffadad', qte:'timing'},
-  {id:'idol', label:'Idol Shard', baseI:8, baseG:2, speed:60, color:'#d1ffc4', qte:'pattern'},
-  {id:'moth', label:'Night Moth', baseI:6, baseG:1, speed:70, color:'#e3e3ff', qte:'none'}
+/* Offer definitions (varied) */
+const OFFER_TYPES = [
+  {id:'villager', label:'Villager', baseI:12, baseG:8, speed:42, color:'#ffd6a5', sprite:SVG.villager, qte:'timing'},
+  {id:'relic', label:'Relic', baseI:10, baseG:4, speed:55, color:'#bde0fe', sprite:SVG.relic, qte:'pattern'},
+  {id:'beast', label:'Beast', baseI:18, baseG:14, speed:36, color:'#ffc6ff', sprite:SVG.beast, qte:'hold'},
+  {id:'child', label:'Child', baseI:34, baseG:28, speed:30, color:'#ffadad', sprite:SVG.cultist, qte:'timing'},
+  {id:'shard', label:'Idol Shard', baseI:8, baseG:2, speed:60, color:'#d1ffc4', sprite:SVG.shard, qte:'pattern'},
+  {id:'moth', label:'Night Moth', baseI:6, baseG:1, speed:70, color:'#e3e3ff', sprite:SVG.altar, qte:'none'}
 ];
 
-/* Gameplay tuning by difficulty affects spawn rates and wave length */
-const DIFF_TUNES = {
-  easy: {spawnFreq:1500, waveLength:120000, guiltMod:0.9},
-  normal: {spawnFreq:1100, waveLength:140000, guiltMod:1.0},
-  hard: {spawnFreq:800, waveLength:160000, guiltMod:1.12}
-};
+/* Upgrades shop */
+let UPGRADE_POOL = [
+  {id:'assist', name:'Ritual Assist', cost:28, desc:'+15% QTE window'},
+  {id:'calm', name:'Calming Ward', cost:38, desc:'-12% guilt gain'},
+  {id:'slow', name:'Slow Fall', cost:30, desc:'Offers fall slower next wave'}
+];
 
-/* --- Setup menu interactions --- */
-document.querySelectorAll('#starterChoices .choice').forEach(el=>{
-  el.addEventListener('click', ()=> {
-    document.querySelectorAll('#starterChoices .choice').forEach(x=>x.style.outline='none');
-    el.style.outline = '2px solid rgba(200,120,255,0.22)';
-    startChoice = el.dataset.which;
+/* rendering metrics */
+function spawnOffer(){
+  const def = OFFER_TYPES[Math.floor(rng()*OFFER_TYPES.length)];
+  const o = Object.assign({}, def);
+  o.x = 80 + Math.random()*(canvas.width/devicePixelRatio - 160);
+  o.y = -40;
+  o.vy = o.speed + wave*1.2 + Math.random()*12;
+  o.id = Math.floor(Math.random()*1e9);
+  o.spawnedAt = now();
+  offers.push(o);
+  updateOfferList();
+}
+
+/* Offer list UI */
+function updateOfferList(){
+  offerList.innerHTML = '';
+  offers.slice(0,8).forEach(o=>{
+    const el = document.createElement('div');
+    el.className = 'choice';
+    el.style.display='flex'; el.style.justifyContent='space-between'; el.style.alignItems='center';
+    el.innerHTML = `<div><div style="font-weight:700">${o.label}</div><div class="tiny muted">Gain ${o.baseI} • Guilt ${o.baseG}</div></div><div><button data-id="${o.id}">Attempt</button></div>`;
+    el.querySelector('button').addEventListener('click', ()=> attemptRitual(o.id));
+    offerList.appendChild(el);
   });
-});
-document.querySelectorAll('.choices .choice').forEach(el=>{
-  // difficulty buttons in menu
-  if(el.dataset.diff){
+  if(offers.length===0) offerList.innerHTML = `<div class="tiny muted">No active offers right now — wait for more.</div>`;
+}
+
+/* update upgrades UI */
+function renderUpgrades(){
+  upgradeList.innerHTML = '';
+  UPGRADE_POOL.forEach(u=>{
+    const el = document.createElement('div');
+    el.className = 'choice';
+    el.innerHTML = `<div style="flex:1"><div style="font-weight:700">${u.name}</div><div class="tiny muted">${u.desc}</div></div><div style="text-align:right"><div style="font-weight:700">${u.cost}</div><div class="tiny muted">I</div></div>`;
     el.addEventListener('click', ()=> {
-      document.querySelectorAll('.choices .choice').forEach(x=>x.style.outline='none');
-      el.style.outline = '2px solid rgba(255,184,107,0.22)';
-      chosenDiff = el.dataset.diff;
-    });
-  }
-});
-$('startGameBtn').addEventListener('click', ()=>{
-  $('menuModal').style.display = 'none';
-  startNewRun();
-});
-$('startBtn').addEventListener('click', ()=> {
-  // resume if running else open menu
-  if(running && !paused) { paused = true; $('pauseBtn').textContent = 'Resume'; return; }
-  if(running && paused){ paused = false; $('pauseBtn').textContent = 'Pause'; return; }
-  $('menuModal').style.display = 'flex';
-});
-
-/* Pause / restart */
-$('pauseBtn').addEventListener('click', ()=>{
-  paused = !paused;
-  $('pauseBtn').textContent = paused ? 'Resume' : 'Pause';
-});
-$('restartBtn').addEventListener('click', ()=> {
-  // show menu
-  $('menuModal').style.display = 'flex';
-  running = false;
-});
-
-/* share / start UI */
-$('shareBtn').addEventListener('click', ()=>{
-  navigator.clipboard?.writeText(`I reached Wave ${wave} • End Score ${score} in Sacrifices Must Be Made`).then(()=> alert('Summary copied to clipboard.'));
-});
-
-/* --- Upgrades (populate) --- */
-const UPGRADE_LIST = [
-  {id:'qteAssist', name:'Ritual Assist', desc:'+12% QTE success window', cost:25},
-  {id:'calmAura', name:'Calming Aura', desc:'Guilt generation reduced by 10%', cost:35},
-  {id:'swiftHands', name:'Swift Hands', desc:'Spawn rate slightly slower (fewer offers)', cost:30},
-  {id:'record', name:'Story Ledger', desc:'Keep a permanent ledger of choices (cosmetic)', cost:5}
-];
-
-function renderUpgradePanel(){
-  upgradePanel.innerHTML = '';
-  UPGRADE_LIST.forEach(u=>{
-    const div = document.createElement('div');
-    div.className = 'upgrade';
-    div.innerHTML = `<div style="flex:1"><div style="font-weight:700">${u.name}</div><div class="small muted">${u.desc}</div></div><div style="min-width:80px;text-align:right"><div class="big">${u.cost}</div><div class="small muted">Influence</div></div>`;
-    div.addEventListener('click', ()=>{
-      if(influence >= u.cost){
-        influence = Math.max(0, influence - u.cost);
-        // activate effect (simple)
-        if(u.id === 'qteAssist') effects.push({id:'qteAssist', label:'Ritual Assist', mod:0.12});
-        if(u.id === 'calmAura') effects.push({id:'calmAura', label:'Calming Aura', mod:0.10});
-        if(u.id === 'swiftHands') effects.push({id:'swiftHands', label:'Swift Hands', mod:0.08});
-        // remove upgrade to prevent repurchase
-        UPGRADE_LIST.splice(UPGRADE_LIST.findIndex(x=>x.id===u.id),1);
-        renderUpgradePanel();
+      if(influence >= u.cost) {
+        influence -= u.cost;
+        effects.push({id:u.id, label:u.name});
+        UPGRADE_POOL = UPGRADE_POOL.filter(x=>x.id!==u.id);
+        renderUpgrades();
       } else {
-        // not enough funds
-        shakeUI(div);
+        el.style.transform = 'translateX(-6px)'; setTimeout(()=>el.style.transform='translateX(0)',120);
       }
       updateUI();
     });
-    upgradePanel.appendChild(div);
+    upgradeList.appendChild(el);
   });
 }
-renderUpgradePanel();
 
-/* --- Visual & particle helpers --- */
-function spawnParticles(x,y,color,n=12){
+/* QTE mechanics for 3 types */
+function attemptRitual(offerId){
+  if(!running || paused) return;
+  const idx = offers.findIndex(o=>o.id===offerId);
+  if(idx<0) return;
+  const o = offers[idx];
+  // remove immediately (attempt)
+  offers.splice(idx,1); updateOfferList();
+  paused = true;
+  SND.start();
+  if(o.qte==='timing') timingQTE(o, result => { finalizeRitual(o, result); paused=false; });
+  else if(o.qte==='pattern') patternQTE(o, result => { finalizeRitual(o, result); paused=false; });
+  else if(o.qte==='hold') holdQTE(o, result => { finalizeRitual(o, result); paused=false; });
+  else { finalizeRitual(o, true); paused=false; }
+}
+
+/* Timing QTE: press space when indicator in zone */
+function timingQTE(o, cb){
+  const modal = showOverlay(`<h2>Ritual — ${o.label}</h2><div class="tiny muted">Time your release into the golden zone.</div><div style="height:140px;margin-top:12px;display:flex;align-items:center;justify-content:center"><canvas id="qcan" width="520" height="120"></canvas></div><div style="text-align:right;margin-top:8px"><button id="abortBtn">Abort</button></div>`);
+  const qcan = document.getElementById('qcan'); const qctx = qcan.getContext('2d');
+  let t = 0; const target = 0.35 + Math.random()*0.42;
+  const assist = effects.some(e=>e.id==='assist') ? 0.15 : 0.0;
+  const win = 0.12 + assist;
+  let runningQ=true;
+  function drawQ(){
+    qctx.fillStyle = '#071018'; qctx.fillRect(0,0,qcan.width,qcan.height);
+    qctx.fillStyle = '#111'; qctx.fillRect(20,44,qcan.width-40,32);
+    const tx = 20 + (qcan.width-40)*target;
+    const tw = (qcan.width-40)*win;
+    qctx.fillStyle = '#ffd6a5'; qctx.fillRect(tx-tw/2,40,tw,40);
+    const prog = 0.5 + 0.5*Math.sin(t*1.6);
+    const ix = 20 + (qcan.width-40)*prog;
+    qctx.beginPath(); qctx.arc(ix,60,10,0,Math.PI*2); qctx.fillStyle='#c94dff'; qctx.fill();
+    qctx.fillStyle='#dfeeff'; qctx.font='14px sans-serif'; qctx.fillText('Press Space', 18, 20);
+    if(runningQ) requestAnimationFrame(drawQ);
+  }
+  drawQ();
+  function loop(){ t += 0.02; if(runningQ) setTimeout(loop, 12); }
+  loop();
+  function onKey(e){
+    if(!runningQ) return; if(e.code==='Space'){ const prog = 0.5 + 0.5*Math.sin(t*1.6); const success = Math.abs(prog-target) <= win/2; runningQ=false; document.removeEventListener('keydown', onKey); modal.close(); SND.beep(success?880:300,0.06); cb(success); }
+  }
+  document.addEventListener('keydown', onKey);
+  modal.el.querySelector('#abortBtn').addEventListener('click', ()=>{ runningQ=false; document.removeEventListener('keydown', onKey); modal.close(); cb(false); });
+}
+
+/* Pattern QTE: repeat shown sequence */
+function patternQTE(o, cb){
+  const keys = ['A','S','D','F']; const seq = []; const len = 3 + Math.floor(Math.random()*2);
+  for(let i=0;i<len;i++) seq.push(keys[Math.floor(rng()*keys.length)]);
+  const modal = showOverlay(`<h2>Ritual — ${o.label}</h2><div class="tiny muted">Repeat the pattern shown.</div><div style="height:140px;margin-top:12px;display:flex;align-items:center;justify-content:center"><div id="patternBox" style="font-family:monospace;font-size:30px;letter-spacing:8px"></div></div><div style="text-align:right;margin-top:8px"><button id="pAbort">Abort</button></div>`);
+  const box = modal.el.querySelector('#patternBox');
+  let stage = 0;
+  function showNext(){
+    box.textContent = seq.slice(0,stage+1).join(' ');
+    stage++;
+    if(stage < seq.length) setTimeout(showNext, 600);
+    else { // accept input
+      const typed = []; function handler(e){ const k=e.key.toUpperCase(); if(!['A','S','D','F'].includes(k)) return; typed.push(k); SND.beep(780,0.04); if(typed.length===seq.length){ document.removeEventListener('keydown', handler); modal.close(); cb(typed.join('')===seq.join('')); } }
+      document.addEventListener('keydown', handler);
+    }
+  }
+  showNext();
+  modal.el.querySelector('#pAbort').addEventListener('click', ()=>{ modal.close(); cb(false); });
+}
+
+/* Hold QTE: hold click for duration */
+function holdQTE(o, cb){
+  const modal = showOverlay(`<h2>Ritual — ${o.label}</h2><div class="tiny muted">Click and hold to sustain the binding.</div><div style="height:140px;margin-top:12px;display:flex;align-items:center;justify-content:center"><button id="holdBtn" style="padding:18px 30px;border-radius:10px;font-weight:700">HOLD</button></div><div style="text-align:right;margin-top:8px"><button id="hAbort">Abort</button></div>`);
+  const btn = modal.el.querySelector('#holdBtn');
+  let held = 0, needed = 1000 + Math.random()*900;
+  let holding = false, raf=0;
+  function tick(){
+    if(holding){ held += 16; if(held>=needed){ holding=false; modal.close(); SND.beep(880,0.08); cb(true); return; } }
+    else { held = Math.max(0, held-12); }
+    raf = requestAnimationFrame(tick);
+  }
+  btn.addEventListener('pointerdown', ()=>{ holding=true; SND.beep(520,0.04); raf=requestAnimationFrame(tick); });
+  document.addEventListener('pointerup', ()=>{ holding=false; });
+  modal.el.querySelector('#hAbort').addEventListener('click', ()=>{ cancelAnimationFrame(raf); modal.close(); cb(false); });
+}
+
+/* finalize ritual results */
+function finalizeRitual(o, success){
+  if(success){
+    const infGain = Math.round((o.baseI + rng()*o.baseI*0.4) * (1 + wave*0.03));
+    let guiltGain = Math.round((o.baseG + rng()*o.baseG*0.3) * (1 + Math.max(0, (wave-4)*0.02)));
+    if(effects.some(e=>e.id==='calm')) guiltGain = Math.round(guiltGain * 0.88);
+    influence = clamp(influence + infGain, 0, 999);
+    guilt = clamp(guilt + guiltGain, 0, 100);
+    score += Math.floor(infGain*1.6);
+    SND.beep(980,0.06);
+    spawnParticles(o.x, o.y, o.color, 20);
+    // secret boon
+    if(guilt>75 && influence>160 && rng()<0.12){ influence += 28; spawnParticles(canvas.width/devicePixelRatio/2, 120, '#ffd6a5', 36); }
+  } else {
+    influence = Math.max(0, influence - Math.round(o.baseI*0.5 + rng()*8));
+    SND.buzz(0.08);
+    spawnParticles(o.x, o.y, '#222', 20);
+  }
+  updateUI();
+  checkWaveAdvance();
+}
+
+/* particles */
+function spawnParticles(x,y,color,n=10){
   for(let i=0;i<n;i++){
     particles.push({
       x,y,
-      vx:(Math.random()*2-1)*2,
-      vy:(Math.random()*-2)-1,
-      life: 40 + Math.random()*50,
-      size: 2 + Math.random()*4,
+      vx:(rng()*2-1)*2,
+      vy:(rng()*-2)-1,
+      life:40 + rng()*40,
+      size:2 + rng()*4,
       color
     });
   }
 }
 
-function shakeUI(el){
-  el.style.transition = 'transform 0.06s';
-  el.style.transform = 'translateX(-6px)';
-  setTimeout(()=>{ el.style.transform='translateX(0)'; },80);
-}
-
-/* --- Offer spawning tuned for long play --- */
-function spawnOfferWave(packSize){
-  // spawn a pack of offers (used at start of wave)
-  for(let i=0;i<packSize;i++){
-    setTimeout(()=> spawnOffer(), i*120 + Math.random()*600);
-  }
-}
-
-function spawnOffer(){
-  const def = OFFER_DEFS[Math.floor(Math.random()*OFFER_DEFS.length)];
-  const o = Object.assign({}, def);
-  o.x = 120 + Math.random()*(canvas.width / devicePixelRatio - 240);
-  o.y = -40;
-  o.vy = o.speed + (wave*1.6) + Math.random()*10;
-  o.id = Math.floor(Math.random()*1e9);
-  o.spawnedAt = nowMs();
-  offers.push(o);
-  // update GUI list
-  renderOfferList();
-}
-
-/* Offer GUI list (right panel) */
-function renderOfferList(){
-  offerList.innerHTML = '';
-  offers.slice(0,8).forEach(o=>{
-    const el = document.createElement('div');
-    el.className = 'upgrade';
-    el.innerHTML = `<div style="flex:1"><div style="font-weight:700">${o.label}</div><div class="small muted">Gain ${o.baseI} • Guilt ${o.baseG}</div></div><div style="width:96px;text-align:right"><button data-id="${o.id}" class="choice small">Attempt</button></div>`;
-    el.querySelector('button').addEventListener('click', ()=> attemptRitual(o.id));
-    offerList.appendChild(el);
-  });
-  if(offers.length === 0){
-    offerList.innerHTML = `<div class="small muted">No active offers — wait for more to fall, or let them touch the altar.</div>`;
-  }
-}
-
-/* --- Rituals: multiple mini-game types --- */
-function attemptRitual(offerId){
-  if(!running || paused) return;
-  // find
-  const idx = offers.findIndex(o=>o.id === offerId);
-  if(idx < 0) return;
-  const o = offers[idx];
-  // lock input
-  paused = true;
-  audio.startIfNeeded();
-  // Decide which mini-game
-  if(o.qte === 'timing'){
-    startTimingQTE(o, (success)=>{
-      finalizeRitual(o, success);
-      paused = false;
-    });
-  } else if(o.qte === 'pattern'){
-    startPatternQTE(o, (success)=>{
-      finalizeRitual(o, success);
-      paused = false;
-    });
-  } else if(o.qte === 'hold'){
-    startHoldQTE(o, (success)=>{
-      finalizeRitual(o, success);
-      paused = false;
-    });
-  } else {
-    // instant passive
-    finalizeRitual(o, true);
-    paused = false;
-  }
-  // remove offered item immediately (attempted)
-  offers.splice(idx,1);
-  renderOfferList();
-}
-
-/* Timing QTE: press space (or click) when moving bar is inside zone */
-function startTimingQTE(o, cb){
-  const overlay = createModal();
-  overlay.content.innerHTML = `<h2>Ritual — ${o.label}</h2><div class="muted small">Time your release into the golden zone.</div><div style="height:140px;margin-top:12px;display:flex;align-items:center;justify-content:center"><canvas id="qCanvas" width="540" height="120"></canvas></div><div style="margin-top:10px;display:flex;justify-content:flex-end;gap:8px"><button id="qAbort">Abort</button></div>`;
-  const qcan = document.getElementById('qCanvas');
-  const qctx = qcan.getContext('2d');
-  let t=0;
-  // target center randomized
-  const target = 0.4 + Math.random()*0.35;
-  const baseWindow = 0.12 + (effects.some(e=>e.id==='qteAssist') ? 0.06 : 0);
-  let runningQ = true;
-  function draw(){
-    qctx.fillStyle = '#071018';
-    qctx.fillRect(0,0,qcan.width,qcan.height);
-    // track bar
-    qctx.fillStyle = '#0f1720'; qctx.fillRect(20,44,qcan.width-40,32);
-    // target zone
-    const tx = 20 + (qcan.width-40)*target;
-    const tw = (qcan.width-40)*baseWindow;
-    qctx.fillStyle = '#ffd6a5';
-    qctx.fillRect(tx - tw/2, 40, tw, 40);
-    // moving indicator
-    const prog = 0.5 + 0.5*Math.sin(t*1.8);
-    const ix = 20 + (qcan.width-40)*prog;
-    qctx.beginPath(); qctx.arc(ix,60,10,0,Math.PI*2); qctx.fillStyle = '#c94dff'; qctx.fill();
-    // labels
-    qctx.fillStyle = '#cde0ff'; qctx.font = '14px sans-serif'; qctx.fillText('Press Space to release', 18, 20);
-    if(runningQ) requestAnimationFrame(draw);
-  }
-  draw();
-  function checkRelease(){
-    const prog = 0.5 + 0.5*Math.sin(t*1.8);
-    const diff = Math.abs(prog - target);
-    const success = diff <= baseWindow/2;
-    runningQ = false;
-    overlay.close();
-    audio.beep(success?880:300, 0.06);
-    cb(success);
-  }
-  function loop(){
-    t += 0.02;
-    if(runningQ) setTimeout(loop, 12);
-  }
-  loop();
-  document.addEventListener('keydown', function handler(e){
-    if(!runningQ) return document.removeEventListener('keydown', handler);
-    if(e.code === 'Space'){ checkRelease(); document.removeEventListener('keydown', handler); }
-  });
-  overlay.el.querySelector('#qAbort').addEventListener('click', ()=> { runningQ=false; overlay.close(); cb(false); });
-}
-
-/* Pattern QTE: repeat short randomized sequence (A/S/D) */
-function startPatternQTE(o, cb){
-  const overlay = createModal();
-  const seq = [];
-  const len = 3 + Math.floor(Math.random()*2);
-  const keys = ['A','S','D','F'];
-  for(let i=0;i<len;i++) seq.push(keys[Math.floor(Math.random()*keys.length)]);
-  overlay.content.innerHTML = `<h2>Ritual — ${o.label}</h2><div class="muted small">Repeat the pattern shown (type keys fast).</div><div style="height:140px;margin-top:12px;display:flex;align-items:center;justify-content:center"><div id="patternBox" style="font-family:monospace;font-size:30px;letter-spacing:10px"></div></div><div style="margin-top:10px;display:flex;justify-content:flex-end;gap:8px"><button id="pAbort">Abort</button></div>`;
-  const box = overlay.el.querySelector('#patternBox');
-  // animate display
-  let idx=0;
-  function showNext(){
-    box.textContent = seq.slice(0,idx+1).join(' ');
-    idx++;
-    if(idx < seq.length) setTimeout(showNext, 600);
-    else {
-      // now accept user input
-      const typed = [];
-      function handler(e){
-        const k = e.key.toUpperCase();
-        if(!['A','S','D','F'].includes(k)) return;
-        typed.push(k);
-        audio.beep(700,0.04);
-        if(typed.length === seq.length){
-          document.removeEventListener('keydown', handler);
-          const success = typed.join('') === seq.join('');
-          overlay.close();
-          cb(success);
-        }
-      }
-      document.addEventListener('keydown', handler);
-    }
-  }
-  showNext();
-  overlay.el.querySelector('#pAbort').addEventListener('click', ()=> { overlay.close(); cb(false); });
-}
-
-/* Hold QTE: hold mouse/click for a duration within limits */
-function startHoldQTE(o, cb){
-  const overlay = createModal();
-  overlay.content.innerHTML = `<h2>Ritual — ${o.label}</h2><div class="muted small">Click and hold the button to sustain the binding.</div><div style="height:140px;margin-top:12px;display:flex;align-items:center;justify-content:center"><button id="holdBtn" style="padding:18px 30px;border-radius:10px; font-weight:700">HOLD</button></div><div style="margin-top:10px;display:flex;justify-content:flex-end;gap:8px"><button id="hAbort">Abort</button></div>`;
-  const btn = overlay.el.querySelector('#holdBtn');
-  let held = 0, needed = 1200 + Math.random()*600;
-  let holding = false;
-  let raf = null;
-  function tick(ts){
-    if(holding){
-      held += 16;
-      if(held >= needed){
-        holding=false;
-        cancelAnimationFrame(raf);
-        overlay.close();
-        audio.beep(880,0.08);
-        cb(true);
-        return;
-      }
-    } else {
-      // decay
-      held = Math.max(0, held - 12);
-    }
-    raf = requestAnimationFrame(tick);
-  }
-  btn.addEventListener('pointerdown', ()=> { holding = true; audio.beep(520,0.06); raf = requestAnimationFrame(tick); });
-  document.addEventListener('pointerup', ()=> { holding=false; });
-  overlay.el.querySelector('#hAbort').addEventListener('click', ()=> { if(raf) cancelAnimationFrame(raf); overlay.close(); cb(false); });
-}
-
-/* modal helper */
-function createModal(){
-  const modal = $('interludeModal');
-  const el = modal;
-  const content = document.getElementById('interludeCard');
+/* show overlay modal helper */
+function showOverlay(innerHtml){
+  const modal = $('overlayModal'); const card = $('overlayCard');
+  card.innerHTML = innerHtml;
   modal.style.display = 'flex';
-  content.innerHTML = '';
-  return {
-    el: modal,
-    content,
-    close: ()=>{ modal.style.display='none'; content.innerHTML=''; }
-  };
+  return { el: modal, close: ()=>{ modal.style.display='none'; card.innerHTML=''; }, content: card };
 }
 
-/* finalize ritual results */
-function finalizeRitual(o, success){
-  // audio and particle flourish
-  audio.startIfNeeded();
-  if(success){
-    // compute influence/guilt with mods
-    const infGain = Math.round((o.baseI + Math.random()*o.baseI*0.3) * (1 + wave*0.02));
-    const guiltGain = Math.round((o.baseG + Math.random()*o.baseG*0.3) * DIFF_TUNES[chosenDiff].guiltMod * (1 + Math.max(0, (wave-5)*0.02)));
-    influence = Math.min(999, influence + infGain);
-    let actualGuiltMod = 1;
-    effects.forEach(e=>{ if(e.id==='calmAura') actualGuiltMod -= e.mod; });
-    guilt = Math.min(100, guilt + Math.round(guiltGain * actualGuiltMod));
-    score += Math.floor(infGain * 1.5);
-    audio.beep(880,0.06);
-    spawnParticles(o.x, o.y, o.color, 22);
-    // secret boon at very high guilt/influence
-    if(guilt > 75 && influence > 140 && Math.random() < 0.10){
-      influence += 30; spawnParticles(canvas.width/2, canvas.height/2, '#ffd6a5', 40);
-    }
-  } else {
-    influence = Math.max(0, influence - Math.round((o.baseI*0.5) + Math.random()*6));
-    audio.buzz(0.08);
-    spawnParticles(o.x, o.y, '#222', 28);
-  }
-  updateUI();
-  checkWaveProgress();
+/* check wave advancement and interludes */
+function checkWaveAdvance(){
+  // simple: waves auto-advance after duration or if influence high enough
+  const tune = { easy:140000, normal:170000, hard:200000 }[difficulty] || 170000;
+  // if influence too high can force advance
+  if(influence > 180 + wave*10) { advanceWave(); return; }
+  // else no immediate action; waves advanced by timer in loop
 }
 
-/* wave progression and interlude scheduling (design to produce ~30 minutes) */
-let waveStartAt = 0;
-function startNewRun(){
-  // reset
-  running = true; paused = false; wave = 0; influence = 8; guilt = 0; offers=[]; particles=[]; effects=[]; score=0; elapsed=0;
-  chosenDiff = chosenDiff || 'normal';
-  // starter choice
-  if(startChoice === 'balanced'){ influence += 6; }
-  if(startChoice === 'merciless'){ influence += 12; guilt += 10; }
-  if(startChoice === 'merciful'){ influence += 0; guilt = Math.max(0, guilt - 10); }
-  startAt = nowMs(); waveStartAt = nowMs();
-  audio.startIfNeeded();
-  // immediate first wave
+/* run control */
+function startRun(){
+  // initialize
+  running=true; paused=false; wave=0; influence=12; guilt=0; score=0; offers=[]; particles=[]; effects=[];
+  startTime = now(); lastSpawnAt = now(); SND.start();
   nextWave();
   requestAnimationFrame(loop);
-  updateUI();
 }
 
-/* nextWave handles interludes and wave spawns.
-   Each wave is long-ish; between some waves show interludes (story + upgrade shop).
-*/
+/* wave flow: interlude every 3 waves */
 function nextWave(){
-  wave++;
-  waveNum.textContent = wave;
-  // if we've exceeded total waves, finish run
-  if(wave > maxWaves){
-    endRun();
-    return;
+  wave++; waveNum.textContent = wave;
+  if(wave > maxWaves){ endRun(); return; }
+  // interlude before certain waves
+  if(wave>1 && wave%3===1){
+    paused = true; showInterlude(); return;
   }
-  // show short interlude at certain checkpoints (every 3 waves)
-  if(wave > 1 && (wave % 3 === 1)){
-    paused = true;
-    showInterlude(wave);
-    return;
-  }
-  // spawn a larger pack for this wave
-  const pack = 8 + Math.floor(wave*1.5);
-  spawnOfferWave(pack);
-  waveStartAt = nowMs();
-  lastSpawn = nowMs();
+  // spawn initial cluster
+  const pack = 6 + Math.floor(wave*1.5);
+  for(let i=0;i<pack;i++){ setTimeout(()=>spawnOffer(), i*140 + Math.random()*420); }
 }
 
-/* interlude: narrative + upgrade shop (player can spend influence; lasts until they press continue) */
-function showInterlude(currentWave){
-  const modal = createModal();
-  const tone = (guilt > 60) ? 'Your dreams are ash and teeth. The cult murmurs your name with a new hunger.' : 'A hush falls. The elders await your decision.';
-  const story = `<h2>Interlude — Dawn After Wave ${currentWave-1}</h2>
-    <div class="muted small">${tone}</div>
-    <div style="margin-top:12px; display:flex;gap:12px">
-      <div style="flex:1">
-        <div style="font-weight:700">Ledger</div>
-        <div class="muted small" id="ledgerText">You have: Influence ${Math.floor(influence)} • Guilt ${Math.floor(guilt)}</div>
-        <div style="margin-top:10px" id="shopArea"></div>
-      </div>
-      <div style="width:320px">
-        <div style="font-weight:700">Choices</div>
-        <div class="muted small" style="margin-top:6px">Pick one ritual modifier for the next chapters. These are single-use.</div>
-        <div class="choices" id="choiceArea" style="margin-top:8px"></div>
-      </div>
+/* interlude (shop + narrative) */
+function showInterlude(){
+  paused = true;
+  const modal = showOverlay('');
+  const tone = guilt>60 ? 'The smoke tastes of iron and star-dust.' : 'The air is still. The elders await what you will choose.';
+  modal.content.innerHTML = `<h2>Interlude — Dawn</h2><div class="tiny muted">${tone}</div>
+  <div style="display:flex;gap:12px;margin-top:12px">
+    <div style="flex:1">
+      <div style="font-weight:700">Ledger</div><div class="tiny muted">Influence ${Math.floor(influence)} • Guilt ${Math.floor(guilt)}</div>
+      <div style="margin-top:10px" id="shopArea"></div>
     </div>
-    <div style="text-align:right;margin-top:12px"><button id="continueBtn" class="primary">Continue</button></div>`;
-  modal.content.innerHTML = story;
+    <div style="width:300px">
+      <div style="font-weight:700">Temporaries</div><div class="tiny muted" id="choiceLine">Pick one boon for next waves.</div>
+      <div style="display:flex;gap:8px;margin-top:8px" id="tempChoices"></div>
+    </div>
+  </div>
+  <div style="text-align:right;margin-top:12px"><button id="contBtn" class="primary">Continue</button></div>`;
+  // shop
   const shopArea = modal.content.querySelector('#shopArea');
-  // show a simplified shop (same UPGRADE_LIST but ephemeral)
-  UPGRADE_LIST.slice(0,3).forEach(u=>{
-    const el = document.createElement('div');
-    el.className = 'upgrade';
-    el.innerHTML = `<div style="flex:1"><div style="font-weight:700">${u.name}</div><div class="small muted">${u.desc}</div></div><div style="min-width:90px;text-align:right"><div class="big">${u.cost}</div><div class="small muted">Inf</div></div>`;
-    el.addEventListener('click', ()=>{
-      if(influence >= u.cost){
-        influence -= u.cost;
-        effects.push({id:u.id, label:u.name, mod:(u.cost/100)});
-        el.style.opacity = 0.5; el.style.pointerEvents = 'none';
-        audio.beep(720,0.05);
-        modal.content.querySelector('#ledgerText').textContent = `You have: Influence ${Math.floor(influence)} • Guilt ${Math.floor(guilt)}`;
-      } else {
-        shakeUI(el);
-      }
+  UPGRADE_POOL.forEach(u=>{
+    const el = document.createElement('div'); el.className='choice';
+    el.innerHTML = `<div style="font-weight:700">${u.name}</div><div class="tiny muted">${u.desc}</div><div style="text-align:right;font-weight:700">${u.cost} I</div>`;
+    el.addEventListener('click', ()=> {
+      if(influence >= u.cost){ influence -= u.cost; effects.push({id:u.id,label:u.name}); UPGRADE_POOL = UPGRADE_POOL.filter(x=>x.id!==u.id); renderUpgrades(); el.style.opacity=0.6; } else { el.style.transform='translateX(-6px)'; setTimeout(()=>el.style.transform='translateX(0)',120); }
       updateUI();
     });
     shopArea.appendChild(el);
   });
-  // choiceArea: pick one single-use ritual modifier
-  const choiceArea = modal.content.querySelector('#choiceArea');
-  const mods = [
-    {id:'veil', name:'Veil of Mercy', desc:'Next 2 offers yield -50% guilt (single-use)'},
-    {id:'bloodFever', name:'Blood Fever', desc:'Next 3 offers +60% influence, +20% guilt'},
-    {id:'silent', name:'Silent Bells', desc:'Increase QTE windows for next wave'}
+  // temporary choices
+  const tArea = modal.content.querySelector('#tempChoices');
+  const temps = [
+    {id:'veil', name:'Veil of Mercy', desc:'Next 2 offers -50% guilt'},
+    {id:'frenzy', name:'Blood Frenzy', desc:'Next 3 offers +60% influence, +18% guilt'},
+    {id:'silence', name:'Silent Bells', desc:'QTE windows +10% next wave'}
   ];
-  mods.forEach(m=>{
-    const d = document.createElement('div');
-    d.className = 'choice';
-    d.innerHTML = `<div style="font-weight:700">${m.name}</div><div class="small muted">${m.desc}</div>`;
-    d.addEventListener('click', ()=>{
-      // attach ephemeral effect
-      effects.push({id:m.id, label:m.name, ephemeral:true, uses: m.id==='veil'?2: (m.id==='bloodFever'?3:1)});
-      // mark chosen
-      Array.from(choiceArea.children).forEach(x=>x.style.opacity=0.6);
-      d.style.opacity = 1.0; audio.beep(920,0.05);
-    });
-    choiceArea.appendChild(d);
+  temps.forEach(t=>{
+    const el = document.createElement('div'); el.className='choice'; el.style.flex='1';
+    el.innerHTML = `<div style="font-weight:700">${t.name}</div><div class="tiny muted">${t.desc}</div>`;
+    el.addEventListener('click', ()=> { effects.push({id:t.id, label:t.name, ephemeral:true, uses:t.id==='veil'?2: (t.id==='frenzy'?3:1)}); Array.from(tArea.children).forEach(x=>x.style.opacity=0.6); el.style.opacity=1; });
+    tArea.appendChild(el);
   });
-
-  modal.content.querySelector('#continueBtn').addEventListener('click', ()=>{
-    modal.close();
-    paused = false;
-    nextWave();
-  });
+  modal.content.querySelector('#contBtn').addEventListener('click', ()=>{ modal.close(); paused=false; nextWave(); });
 }
 
-/* check wave progress — waves end after a duration */
-function checkWaveProgress(){
-  // if influence peaks dramatically you can also progress
-  // but primarily waves advance by time or when influence exceeds a threshold
-  const tune = DIFF_TUNES[chosenDiff] || DIFF_TUNES.normal;
-  const waveDuration = tune.waveLength + Math.floor(Math.random()*25000);
-  if(nowMs() - waveStartAt > waveDuration || influence > 220 + wave*10){
-    // end this wave early and schedule next
-    nextWave();
-  }
-}
-
-/* run loop */
+/* main loop */
 function loop(){
   if(!running) return;
   if(!paused){
-    const delta = 16;
-    elapsed = nowMs() - startAt;
-    updateEntities(delta);
-    render(delta);
+    const dt = 16;
+    const tune = {easy:1400, normal:1100, hard:900}[difficulty] || 1100;
+    // spawn periodic offers
+    if(now() - lastSpawnAt > tune && offers.length < 9 + wave*2){ spawnOffer(); lastSpawnAt = now(); }
+    // update entities
+    for(let i=offers.length-1;i>=0;i--){
+      const o = offers[i];
+      o.y += (o.vy * 0.016);
+      if(o.y > (canvas.height/devicePixelRatio - 90)){
+        // auto process
+        const iGain = Math.round(o.baseI*0.35*(1+wave*0.02));
+        let gGain = Math.round(o.baseG*0.6*(1 + Math.max(0,(wave-4)*0.02)));
+        if(effects.some(e=>e.id==='calm')) gGain = Math.round(gGain*0.88);
+        influence = clamp(influence + iGain,0,999); guilt = clamp(guilt + gGain,0,100);
+        spawnParticles(o.x, canvas.height/devicePixelRatio - 110, o.color, 12);
+        offers.splice(i,1);
+        SND.buzz(0.04);
+        score += Math.floor(iGain*1.1);
+      }
+    }
+    // particles physics
+    for(let i=particles.length-1;i>=0;i--){
+      const p = particles[i];
+      p.x += p.vx * 0.5; p.y += p.vy * 0.5; p.vy += 0.06; p.life -= 1.2;
+      if(p.life<=0) particles.splice(i,1);
+    }
+    // decay
+    influence = Math.max(0, influence - 0.001 * dt);
+    // ephemeral effects uses handling
+    effects = effects.filter(e=> {
+      if(e.ephemeral && e.uses<=0) return false;
+      return true;
+    });
+    // wave timer – advance based on time or if influence large
+    // track time
+    elapsed = now() - startTime;
+    // if current wave lasts long enough -> advance
+    const waveLen = {easy:170000,normal:200000,hard:230000}[difficulty] || 200000;
+    if(now() - (waveStartAt||now()) > waveLen || influence > 220 + wave*8) { waveStartAt = now(); nextWave(); }
+    updateUI();
+    render();
   }
   requestAnimationFrame(loop);
 }
 
-/* updateEntities */
-function updateEntities(dt){
-  // spawning offers periodically based on difficulty and effects
-  const tune = DIFF_TUNES[chosenDiff];
-  let spawnFreq = tune.spawnFreq;
-  if(effects.some(e=>e.id==='swiftHands')) spawnFreq += 220; // slower spawns
-  if(nowMs() - lastSpawn > spawnFreq && offers.length < 9 + wave*2){
-    spawnOffer();
-    lastSpawn = nowMs();
-  }
-  // offers physics
-  for(let i=offers.length-1;i>=0;i--){
-    const o = offers[i];
-    o.y += (o.vy * 0.016);
-    if(o.y > (canvas.height/devicePixelRatio - 80)){
-      // auto-process (sloppy sacrifice)
-      const baseInf = Math.round((o.baseI*0.35) * (1 + wave*0.02));
-      const baseG = Math.round((o.baseG*0.6) * DIFF_TUNES[chosenDiff].guiltMod);
-      influence = Math.min(999, influence + baseInf);
-      guilt = Math.min(100, guilt + baseG);
-      spawnParticles(o.x, canvas.height/devicePixelRatio - 90, o.color, 12);
-      offers.splice(i,1);
-      audio.buzz(0.04);
-      score += Math.floor(baseInf*1.1);
-    }
-  }
-  // particles
-  for(let i=particles.length-1;i>=0;i--){
-    const p = particles[i];
-    p.x += p.vx * (dt*0.1);
-    p.y += p.vy * (dt*0.1);
-    p.vy += 0.06 * (dt*0.1);
-    p.life -= 1.2 * (dt*0.1);
-    if(p.life <= 0) particles.splice(i,1);
-  }
-  // UI decay/maintenance
-  influence = Math.max(0, influence - 0.002 * dt); // slow decay
-  // update ephemeral effects uses
-  effects = effects.filter(e=>{
-    if(e.ephemeral){
-      if(e.uses <= 0) return false;
-    }
-    return true;
-  });
-  updateUI();
+/* UI updates */
+function updateUI(){
+  influenceBar.style.width = Math.min(100, influence/6).toFixed(2) + '%';
+  guiltBar.style.width = Math.min(100, guilt).toFixed(2) + '%';
+  $('waveNum').textContent = wave;
+  $('runTime').textContent = formatTime(Math.floor((now() - startTime)/1000));
+  $('scoreTxt').textContent = Math.floor(score);
+  infTxt.textContent = Math.floor(influence);
+  gltxt.textContent = Math.floor(guilt);
+  // effects list
+  effectsList.innerHTML = ''; effects.forEach(e=> { const d = document.createElement('div'); d.className='tiny muted'; d.textContent = '• ' + e.label; effectsList.appendChild(d); });
 }
 
-/* render visuals with higher polish */
-function render(dt){
-  // background gradient + subtle starfield
-  ctx.fillStyle = '#061018'; ctx.fillRect(0,0,canvas.width, canvas.height);
+/* render frame */
+function render(){
   const w = canvas.width/devicePixelRatio, h = canvas.height/devicePixelRatio;
-  // soft vignette
-  const g = ctx.createLinearGradient(h/2,0,h/2,h);
-  g.addColorStop(0,'rgba(200,120,255,0.02)');
-  g.addColorStop(1,'rgba(0,0,0,0.15)');
-  ctx.fillStyle = g; ctx.fillRect(0,0,w,h);
-
-  // altar & foreground
-  const cx = w/2, cy = h - 70;
-  ctx.save();
-  ctx.translate(cx,cy);
-  // altar shadow
-  ctx.fillStyle = 'rgba(0,0,0,0.6)';
-  ctx.beginPath(); ctx.ellipse(0,18,220,36,0,0,Math.PI*2); ctx.fill();
-  // altar base with layered steps
-  for(let i=0;i<4;i++){
-    ctx.fillStyle = `rgba(12,14,20,${0.9 - i*0.08})`;
-    roundRect(ctx, -200 + i*12, -20 - i*10, 400 - i*24, 60 + i*8, 22 - i*3);
-    ctx.fill();
+  // background with parallax clouds
+  ctx.fillStyle = '#051018'; ctx.fillRect(0,0,w,h);
+  // star-like particulate
+  for(let i=0;i<40;i++){
+    // light, subtle noise
+    const x = (i*37) % w; const y = (i*53* (0.3 + (wave*0.02))) % h;
+    ctx.fillStyle = `rgba(255,255,255,${0.01 + (i%7)*0.006})`; ctx.fillRect(x, y, 1, 1);
   }
-  // flame (influenced by guilt/influence)
-  const flameHue = 320 - guilt*1.8;
-  const flameSize = 22 + Math.min(120, influence*0.12);
-  // flicker shape composed of overlapping ellipses
+  // parallax ruins silhouette
+  ctx.fillStyle = 'rgba(7,10,16,0.9)';
+  ctx.beginPath();
+  ctx.moveTo(0, h*0.66);
+  ctx.lineTo(w*0.12, h*0.5);
+  ctx.lineTo(w*0.22, h*0.58);
+  ctx.lineTo(w*0.38, h*0.44);
+  ctx.lineTo(w*0.52, h*0.6);
+  ctx.lineTo(w*0.7, h*0.46);
+  ctx.lineTo(w*0.84, h*0.54);
+  ctx.lineTo(w, h*0.42);
+  ctx.lineTo(w, h);
+  ctx.lineTo(0,h);
+  ctx.closePath();
+  ctx.fill();
+
+  // altar drawing center bottom (use procedural flame)
+  const cx = w/2, cy = h - 80;
+  // shadow
+  ctx.fillStyle = 'rgba(0,0,0,0.6)';
+  ctx.beginPath(); ctx.ellipse(cx, cy+28, 220, 36, 0,0,Math.PI*2); ctx.fill();
+  // steps
+  for(let i=0;i<3;i++){
+    ctx.fillStyle = `rgba(12,14,20,${0.86 - i*0.04})`;
+    roundRect(ctx, cx-220 + i*16, cy-30 - i*10, 440 - i*32, 60 + i*8, 18 - i*3); ctx.fill();
+  }
+  // flame - multi ellipse flicker
+  const hue = 320 - guilt*1.8;
+  const flBase = 22 + Math.min(120,influence*0.12);
   for(let i=0;i<5;i++){
     ctx.beginPath();
-    const s = flameSize * (1 + i*0.12) * (1 + Math.sin(performance.now()/300 + i) * 0.06);
-    ctx.ellipse((Math.sin(i+performance.now()/700)*6), -36 - i*4, s*0.8, s*1.4, 0, 0, Math.PI*2);
-    ctx.fillStyle = `hsla(${flameHue - i*6},88%,${50 + i*3}%,${0.65 - i*0.09})`;
+    const s = flBase*(1 + i*0.12) * (1 + Math.sin(now()/320 + i)*0.06);
+    ctx.ellipse(cx + Math.sin(i + now()/700)*6, cy-36 - i*4, s*0.8, s*1.4, 0, 0, Math.PI*2);
+    ctx.fillStyle = `hsla(${hue - i*6},88%,${50 + i*3}%,${0.7 - i*0.09})`;
     ctx.fill();
   }
-  ctx.restore();
 
-  // draw offers with soft drop shadows and subtle glow
+  // draw offers (orbs with glow + sprite)
   offers.forEach(o=>{
     const x = o.x, y = o.y;
     // shadow
-    ctx.beginPath(); ctx.ellipse(x, y+16, 28, 10, 0, 0, Math.PI*2); ctx.fillStyle='rgba(0,0,0,0.35)'; ctx.fill();
-    // orb
-    const grad = ctx.createRadialGradient(x-8,y-6,4,x,y,28);
-    grad.addColorStop(0,'rgba(255,255,255,0.88)');
-    grad.addColorStop(0.14, 'rgba(255,255,255,0.25)');
-    grad.addColorStop(0.9, o.color);
-    ctx.fillStyle = grad;
-    ctx.beginPath(); ctx.arc(x,y,26,0,Math.PI*2); ctx.fill();
-    // rim highlight
-    ctx.strokeStyle = 'rgba(255,255,255,0.06)'; ctx.lineWidth = 1.5; ctx.stroke();
+    ctx.beginPath(); ctx.ellipse(x, y+16, 28, 10, 0,0,Math.PI*2); ctx.fillStyle='rgba(0,0,0,0.36)'; ctx.fill();
+    // orb gradient
+    const grad = ctx.createRadialGradient(x-6,y-6,4,x,y,28); grad.addColorStop(0,'rgba(255,255,255,0.9)'); grad.addColorStop(0.12,'rgba(255,255,255,0.26)'); grad.addColorStop(0.9,o.color);
+    ctx.fillStyle = grad; ctx.beginPath(); ctx.arc(x,y,26,0,Math.PI*2); ctx.fill();
+    ctx.strokeStyle = 'rgba(255,255,255,0.06)'; ctx.lineWidth = 1.2; ctx.stroke();
+    // draw embedded sprite at center (SVG image)
+    const img = new Image(); img.src = o.sprite;
+    ctx.drawImage(img, x-18, y-18, 36, 36);
     // label
-    ctx.fillStyle = '#04101a'; ctx.font = '12px Inter, sans-serif'; ctx.fillText(o.label, x-22, y+42);
+    ctx.fillStyle = '#041018'; ctx.font='12px sans-serif'; ctx.fillText(o.label, x-28, y+42);
   });
 
   // particles
   particles.forEach(p=>{
     ctx.globalAlpha = Math.max(0, Math.min(1, p.life/80));
-    ctx.fillStyle = p.color;
-    ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI*2); ctx.fill();
-    ctx.globalAlpha = 1;
+    ctx.fillStyle = p.color; ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI*2); ctx.fill(); ctx.globalAlpha = 1;
   });
 
-  // HUD overlay text
-  ctx.fillStyle = '#cbd5e1'; ctx.font = '13px Inter, sans-serif';
-  ctx.fillText('Wave: ' + wave, 14, 22);
-  ctx.fillText('Influence: ' + Math.floor(influence), 14, 42);
-  ctx.fillText('Guilt: ' + Math.floor(guilt), 14, 62);
-  ctx.fillText('Score: ' + Math.floor(score), 14, 82);
-
-  // subtle cinematic vignette
-  const vign = ctx.createLinearGradient(0,0,w,0);
-  vign.addColorStop(0,'rgba(0,0,0,0)');
-  vign.addColorStop(1,'rgba(0,0,0,0)');
-  ctx.fillStyle = vign;
-  ctx.fillRect(0,0,w,h);
+  // HUD overlay
+  ctx.fillStyle = '#cbd5e1'; ctx.font='13px sans-serif';
+  ctx.fillText('Wave: ' + wave, 12, 20);
+  ctx.fillText('Influence: ' + Math.floor(influence), 12, 40);
+  ctx.fillText('Guilt: ' + Math.floor(guilt), 12, 60);
+  ctx.fillText('Score: ' + Math.floor(score), 12, 80);
 }
 
-/* helper roundRect for canvas */
-function roundRect(ctx,x,y,w,h,r){
-  if (w<2*r) r=w/2;
-  if (h<2*r) r=h/2;
-  ctx.beginPath();
-  ctx.moveTo(x+r,y);
-  ctx.arcTo(x+w,y,x+w,y+h,r);
-  ctx.arcTo(x+w,y+h,x,y+h,r);
-  ctx.arcTo(x,y+h,x,y,r);
-  ctx.arcTo(x,y,x+w,y,r);
-  ctx.closePath();
+/* roundRect for canvas */
+function roundRect(ctx,x,y,w,h,r){ if(w<2*r) r=w/2; if(h<2*r) r=h/2; ctx.beginPath(); ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r); ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath(); }
+
+/* wave control and ending */
+let waveStartAt = 0;
+function beginNextWave(){
+  waveStartAt = now();
+  const pack = 6 + Math.floor(wave*1.4);
+  for(let i=0;i<pack;i++) setTimeout(()=>spawnOffer(), i*120 + Math.random()*600);
 }
 
-/* --- UI update function to sync DOM --- */
-function updateUI(){
-  influenceBar.style.width = Math.min(100, influence/6).toFixed(2) + '%';
-  guiltBar.style.width = Math.min(100, guilt).toFixed(2) + '%';
-  infTxt.textContent = Math.floor(influence);
-  gultxt.textContent = Math.floor(guilt);
-  scoreTxt.textContent = Math.floor(score);
-  waveNum.textContent = wave;
-  runTime.textContent = formatTime(Math.floor((nowMs()-startAt)/1000));
-  renderEffects();
-  renderOfferList();
+/* advance logic wrapper */
+function advanceWave(){
+  if(wave >= maxWaves) { endRun(); return; }
+  // small reset and interlude between some
+  if((wave % 3)===0){ paused=true; showInterlude(); }
+  else { beginNextWave(); }
 }
-function formatTime(s){
-  const mm = String(Math.floor(s/60)).padStart(2,'0');
-  const ss = String(s%60).padStart(2,'0');
-  return `${mm}:${ss}`;
-}
-function renderEffects(){
-  effectsList.innerHTML = '';
-  effects.forEach(e=>{
-    const d = document.createElement('div'); d.className='tiny muted'; d.textContent = `• ${e.label}`;
-    effectsList.appendChild(d);
+
+/* interlude UI (shop + narrative) */
+function showInterlude(){
+  const modal = showOverlay('');
+  const tone = guilt>60 ? 'Your hands will not forget the color of blood.' : 'Silence cups the temple like a held breath.';
+  modal.content.innerHTML = `<h2>Interlude — Pause</h2><div class="tiny muted">${tone}</div>
+  <div style="display:flex;gap:12px;margin-top:10px">
+    <div style="flex:1">
+      <div style="font-weight:700">Ledger</div>
+      <div class="tiny muted">Influence ${Math.floor(influence)} • Guilt ${Math.floor(guilt)}</div>
+      <div style="margin-top:10px" id="shopArea"></div>
+    </div>
+    <div style="width:300px">
+      <div style="font-weight:700">One-time Boon</div>
+      <div class="tiny muted">Choose a temporary modifier for the next waves.</div>
+      <div id="tempArea" style="display:flex;gap:8px;margin-top:8px"></div>
+    </div>
+  </div>
+  <div style="text-align:right;margin-top:12px"><button id="continueBtn" class="primary">Continue</button></div>`;
+  const shopArea = modal.content.querySelector('#shopArea');
+  UPGRADE_POOL.slice(0,3).forEach(u=>{
+    const e = document.createElement('div'); e.className='choice'; e.innerHTML=`<div style="font-weight:700">${u.name}</div><div class="tiny muted">${u.desc}</div><div style="text-align:right;font-weight:700">${u.cost} I</div>`;
+    e.addEventListener('click', ()=> { if(influence>=u.cost){ influence -= u.cost; effects.push({id:u.id,label:u.name}); renderUpgrades(); e.style.opacity=0.6; } else { e.style.transform='translateX(-6px)'; setTimeout(()=>e.style.transform='translateX(0)',120);} updateUI(); });
+    shopArea.appendChild(e);
   });
+  const tempArea = modal.content.querySelector('#tempArea');
+  const temps = [{id:'veil',name:'Veil of Mercy',desc:'Next 2 offers -50% guilt'},{id:'frenzy',name:'Blood Frenzy',desc:'Next 3 offers +80% influence, +20% guilt'},{id:'quiet',name:'Quiet Bells',desc:'QTE windows +12% next wave'}];
+  temps.forEach(t=>{ const el=document.createElement('div'); el.className='choice'; el.style.flex='1'; el.innerHTML=`<div style="font-weight:700">${t.name}</div><div class="tiny muted">${t.desc}</div>`; el.addEventListener('click', ()=> { effects.push({id:t.id,label:t.name,ephemeral:true,uses:t.id==='veil'?2:(t.id==='frenzy'?3:1)}); Array.from(tempArea.children).forEach(x=>x.style.opacity=0.6); el.style.opacity=1; }); tempArea.appendChild(el); });
+  modal.content.querySelector('#continueBtn').addEventListener('click', ()=> { modal.close(); paused=false; if(wave>=maxWaves){ endRun(); } else beginNextWave(); });
 }
 
-/* --- End/run completion logic + endings (3 main endings + secret) --- */
+/* end run */
 function endRun(){
-  running = false;
-  paused = false;
-  // determine ending based on gestalt metrics
+  running=false; paused=false;
+  // determine ending
   let title='', text='';
-  if(influence >= 220 && guilt <= 55){
-    title = 'Balance Achieved';
-    text = 'You shepherded power with steady hands — the cult persists, woven into the town like an inevitable season.';
-  } else if(influence >= 200 && guilt >= 60){
-    title = 'Feast of Ashes';
-    text = 'Power swallowed you. The idol wakes on a mountain of ash. You are a name in hours, and in the dark a legend of hunger.';
-  } else if(influence < 140 && guilt <= 40){
-    title = 'Quiet Redemption';
-    text = 'The rituals failed to bind the world. You cut the cords and watched the flames fade. Some were saved. You walk home differently.';
-  } else {
-    title = 'Fragmented Fate';
-    text = 'A messy end — the cult fractures, songs die mid-verse, and townsfolk barter for amnesty.';
-  }
-  // secret ending
-  if(guilt > 95 && influence > 260) { title = 'Idol Incarnate'; text = 'You became the thing you summoned. The world stutters; time remembers you as both god and ruin.'; }
-  showEndingModal(title, text);
+  if(influence >= 220 && guilt <= 55){ title='Balance Achieved'; text='You guided the cult with steady hands; it endures.'; }
+  else if(influence >= 200 && guilt >= 60){ title='Feast of Ashes'; text='Power consumed you — an idol rises from everything you gave.'; }
+  else if(influence < 140 && guilt <= 40){ title='Quiet Redemption'; text='You unmade what you began and walked away with a heart heavier and quieter.'; }
+  else { title='Fragmented Fate'; text='The cult fractures; none leave unscarred.'; }
+  if(guilt > 95 && influence > 260){ title='Idol Incarnate'; text='You became the thing you called. Time remembers both god and ruin.'; }
+  showEnding(title, text);
 }
 
-/* ending modal */
-function showEndingModal(title, text){
-  const modal = $('endingModal');
-  const card = $('endingCard');
-  card.innerHTML = `<h2>${title}</h2><div class="muted small" style="margin-top:8px">${text}</div><div style="margin-top:12px" class="muted small">Score: ${Math.floor(score)} • Waves: ${wave} • Time: ${formatTime(Math.floor((nowMs()-startAt)/1000))}</div>
-    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px">
-      <button id="endAgain">Play Again</button>
-      <button id="endMenu">Main Menu</button>
-    </div>`;
-  modal.style.display = 'flex';
-  $('endAgain').addEventListener('click', ()=> { modal.style.display='none'; $('menuModal').style.display='none'; startNewRun(); });
-  $('endMenu').addEventListener('click', ()=> { modal.style.display='none'; $('menuModal').style.display='flex'; });
+/* show ending modal */
+function showEnding(title, text){
+  const modal = $('endingModal'); const card = $('endingCard');
+  card.innerHTML = `<h2>${title}</h2><div class="tiny muted" style="margin-top:8px">${text}</div><div style="margin-top:10px" class="tiny muted">Score: ${Math.floor(score)} • Waves: ${wave} • Time: ${formatTime(Math.floor((now()-startTime)/1000))}</div>
+  <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px">
+    <button id="againBtn">Play Again</button>
+    <button id="backMenu">Main Menu</button>
+  </div>`;
+  modal.style.display='flex';
+  $('againBtn').addEventListener('click', ()=> { modal.style.display='none'; $('menuModal').style.display='none'; startNewRun(); });
+  $('backMenu').addEventListener('click', ()=> { modal.style.display='none'; $('menuModal').style.display='flex'; });
 }
 
-/* Helper to create small modal for QTEs (reused) */
-function createSmallModal(innerHtml){
-  const parent = document.createElement('div');
-  parent.className = 'modal';
-  parent.style.display='flex';
-  const card = document.createElement('div'); card.className='card'; card.innerHTML = innerHtml;
-  parent.appendChild(card);
-  document.body.appendChild(parent);
-  return {el: parent, content: card, close: ()=> { parent.remove(); }};
+/* format time */
+function formatTime(s){ const mm=String(Math.floor(s/60)).padStart(2,'0'); const ss=String(s%60).padStart(2,'0'); return mm+':'+ss; }
+
+/* spawn initial run */
+function startNewRun(){
+  // reset state
+  running = true; paused=false; startTime = now(); wave=0; influence=10; guilt=0; score=0; offers=[]; particles=[]; effects=[]; waveStartAt = now();
+  // starter selection from menu choices
+  const st = Array.from(document.querySelectorAll('#menuModal .choice')).find(c=>c.style.outline && c.dataset && c.dataset.st);
+  // fallback initial buff
+  influence += 6;
+  nextWave();
+  requestAnimationFrame(loop);
 }
 
-/* small sfx wrappers */
-audio.beep = audio.beep.bind(audio);
-audio.buzz = audio.buzz.bind(audio);
+/* wire up UI */
+$('startBtn').addEventListener('click', ()=> { $('menuModal').style.display='none'; startNewRun(); });
+$('startResume').addEventListener('click', ()=> {
+  if(running && !paused){ paused=true; $('pauseBtn').textContent='Resume'; return; }
+  if(running && paused){ paused=false; $('pauseBtn').textContent='Pause'; return; }
+  $('menuModal').style.display='flex';
+});
+$('menuBtn').addEventListener('click', ()=> { $('menuModal').style.display='flex'; });
+$('pauseBtn').addEventListener('click', ()=> { paused = !paused; $('pauseBtn').textContent = paused ? 'Resume' : 'Pause'; });
+$('shareBtn').addEventListener('click', ()=> { navigator.clipboard?.writeText(`I reached Wave ${wave} • Score ${Math.floor(score)} in Sacrifices Must Be Made`).then(()=> alert('Summary copied to clipboard')); });
 
-/* initial UI fill */
-updateUI();
+/* starter choice highlight */
+document.querySelectorAll('#menuModal .choice[data-st]').forEach((el,i)=>{ el.addEventListener('click', ()=> { document.querySelectorAll('#menuModal .choice[data-st]').forEach(x=>x.style.outline='none'); el.style.outline='2px solid rgba(200,120,255,0.2)'; el.dataset.chosen='1'; }); });
+document.querySelectorAll('#menuModal .choice[data-d]').forEach(el=>{ el.addEventListener('click', ()=>{ document.querySelectorAll('#menuModal .choice[data-d]').forEach(x=>x.style.outline='none'); el.style.outline='2px solid rgba(255,184,107,0.12)'; difficulty = el.dataset.d; }); });
 
-/* Accessibility: resume audio on first gesture */
-document.addEventListener('pointerdown', ()=> audio.startIfNeeded(), {once:true});
+/* render upgrades now */
+renderUpgrades();
+
+/* resume audio on first interaction */
+document.addEventListener('pointerdown', ()=> SND.start(), {once:true});
+
+/* start with menu visible */
+$('menuModal').style.display='flex';
+
+/* small helper to start new run from ending modal */
+function startNewRun(){ $('endingModal').style.display='none'; $('menuModal').style.display='none'; startRun(); }
+
+/* start run core function (splitting to allow restart) */
+function startRun(){
+  running=true; paused=false; startTime = now(); elapsed=0; wave=0; influence=12; guilt=0; score=0; offers=[]; particles=[]; effects=[]; waveStartAt = now(); nextWave(); requestAnimationFrame(loop);
+}
+
+/* initial UI update tick */
+setInterval(updateUI, 120);
+
+/* Accessibility: focus */
+window.addEventListener('keydown', (e)=> { if(e.key==='Escape'){ if($('overlayModal').style.display==='flex') $('overlayModal').style.display='none'; else $('menuModal').style.display='flex'; } });
+
+/* small debug: expose spawnOffer for dev console */
+window._spawnOffer = spawnOffer;
 
 </script>
 </body>
