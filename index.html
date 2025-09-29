@@ -3,30 +3,27 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sacrifices Must Be Made</title>
+<title>Sacrifices Must Be Made - Simple</title>
 <style>
-body{margin:0;background:#071018;overflow:hidden;font-family:monospace;color:#fff;}
+body{margin:0;background:#071018;font-family:monospace;color:#fff;overflow:hidden;}
 canvas{display:block;margin:0 auto;background:#071018;}
 #menu{position:absolute;inset:0;display:flex;justify-content:center;align-items:center;flex-direction:column;background:rgba(0,0,0,0.85);}
 button{padding:12px 24px;font-size:16px;margin-top:10px;cursor:pointer;border-radius:6px;border:none;background:#c94dff;color:#fff;}
 #hud{position:absolute;top:10px;left:10px;}
 .meter{display:inline-block;width:150px;height:10px;background:#333;border-radius:5px;overflow:hidden;margin-right:5px;}
 .meter>i{display:block;height:100%;width:0%;background:#c94dff;}
-#dialogBox{position:absolute;bottom:20px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.75);padding:12px;border-radius:6px;display:none;max-width:80%;color:#fff;}
 </style>
 </head>
 <body>
 <div id="menu">
 <h1>Sacrifices Must Be Made</h1>
-<p>Rise through the family. Sacrifices must be made.</p>
 <button id="startBtn">Start Game</button>
 </div>
-<canvas id="game" width="960" height="540"></canvas>
+<canvas id="game" width="800" height="450"></canvas>
 <div id="hud">
 Influence: <div class="meter"><i id="infBar"></i></div>
 Guilt: <div class="meter"><i id="guiltBar"></i></div>
 </div>
-<div id="dialogBox"></div>
 <script>
 // Canvas
 const canvas=document.getElementById('game');
@@ -34,18 +31,12 @@ const ctx=canvas.getContext('2d');
 const TILE=32,W=canvas.width,H=canvas.height;
 
 // Game
-let influence=0,guilt=0,gameStarted=false,dialogActive=false;
-const player={x:100,y:400,w:28,h:36,vx:0,vy:0,onGround:false,dir:1};
+let influence=0,guilt=0,gameStarted=false;
+const player={x:100,y:350,w:28,h:36,vx:0,vy:0,onGround:false};
 
-// Map (NYC alleys style)
-const MAP_W=30,MAP_H=14;
+// Simple map
+const MAP_W=25,MAP_H=12;
 const map=Array.from({length:MAP_H},(_,y)=>Array.from({length:MAP_W},(_,x)=>y===MAP_H-1?1:0));
-
-// NPCs
-const npcs=[
-{x:400,y:400,w:28,h:36,dialog:["Hey kid, want to prove loyalty?","Sacrifice something dear to gain influence."]},
-{x:700,y:400,w:28,h:36,dialog:["You've made your choices.","Your family notices your rise."]}
-];
 
 // Camera
 const cam={x:0,y:0,w:W,h:H};
@@ -73,48 +64,18 @@ if(map[ty]&&map[ty][tx]>0)return true;
 return false;
 }
 
-// Dialog system
-const dialogBox=document.getElementById('dialogBox');
-let dialogQueue=[];
-function queueDialog(lines){dialogQueue.push(...lines); if(!dialogActive)showNextDialog();}
-function showNextDialog(){
-if(dialogQueue.length===0){dialogActive=false; dialogBox.style.display='none'; return;}
-dialogActive=true; dialogBox.style.display='block';
-dialogBox.innerHTML=dialogQueue.shift();
-}
-window.addEventListener('keydown',e=>{
-if(e.key==='Enter'&&dialogActive)showNextDialog();
-});
-
 // Start menu
 document.getElementById('startBtn').addEventListener('click',()=>{
 document.getElementById('menu').style.display='none';
 gameStarted=true;
-queueDialog(["You are about to rise in the family.","Press Enter to advance dialogue."]);
-requestAnimationFrame(loop);
 });
-
-// Interaction with NPCs
-function checkNPC(){
-for(const npc of npcs){
-const dx=player.x+(player.w/2)-(npc.x+npc.w/2);
-const dy=player.y+(player.h/2)-(npc.y+npc.h/2);
-if(Math.hypot(dx,dy)<50){
-queueDialog(npc.dialog);
-if(npc.dialog[0].includes("Sacrifice")){
-influence+=30; guilt+=20; // first sacrifice
-}
-}
-}
-}
 
 // Update
 function update(){
 if(!gameStarted)return;
-// Input
 const speed=2;
-if(keys['arrowleft']||keys['a']){player.vx=-speed;player.dir=-1;}
-else if(keys['arrowright']||keys['d']){player.vx=speed;player.dir=1;}
+if(keys['arrowleft']||keys['a'])player.vx=-speed;
+else if(keys['arrowright']||keys['d'])player.vx=speed;
 else player.vx=0;
 if((keys['arrowup']||keys['w'])&&player.onGround)player.vy=-7,player.onGround=false;
 // Gravity
@@ -126,8 +87,9 @@ let ny=player.y+player.vy;if(!isSolid(player.x,ny,player.w,player.h)){player.y=n
 // Camera
 cam.x=Math.max(0,Math.min(MAP_W*TILE-W,player.x-W/2+player.w/2));
 cam.y=0;
-// Check NPC
-checkNPC();
+
+// Simple influence/guilt increase when reaching end
+if(player.x>MAP_W*TILE-50){influence=100;guilt=50;}
 }
 
 // Render
@@ -140,15 +102,13 @@ for(let x=0;x<MAP_W;x++){
 if(map[y][x]>0)ctx.fillRect(x*TILE-cam.x,y*TILE-cam.y,TILE,TILE);
 }
 }
-// NPCs
-ctx.fillStyle="#ff4444";
-for(const npc of npcs)ctx.fillRect(npc.x-cam.x,npc.y-cam.y,npc.w,npc.h);
 // Player
 ctx.fillStyle="#6b4e3d";ctx.fillRect(player.x-cam.x,player.y-cam.y,player.w,player.h);
 }
 
 // Loop
 function loop(){update();render();updateHUD();requestAnimationFrame(loop);}
+loop();
 </script>
 </body>
 </html>
