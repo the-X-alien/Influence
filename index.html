@@ -3,111 +3,130 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sacrifices Must Be Made - Simple</title>
+<title>Sacrifices Must Be Made - Simple Playable</title>
 <style>
-body{margin:0;background:#071018;font-family:monospace;color:#fff;overflow:hidden;}
+body{margin:0;background:#071018;overflow:hidden;font-family:monospace;color:#fff;}
 canvas{display:block;margin:0 auto;background:#071018;}
-#menu{position:absolute;inset:0;display:flex;justify-content:center;align-items:center;flex-direction:column;background:rgba(0,0,0,0.85);}
-button{padding:12px 24px;font-size:16px;margin-top:10px;cursor:pointer;border-radius:6px;border:none;background:#c94dff;color:#fff;}
 #hud{position:absolute;top:10px;left:10px;}
 .meter{display:inline-block;width:150px;height:10px;background:#333;border-radius:5px;overflow:hidden;margin-right:5px;}
 .meter>i{display:block;height:100%;width:0%;background:#c94dff;}
+#dialogBox{position:absolute;bottom:20px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.75);padding:12px;border-radius:6px;display:none;max-width:80%;color:#fff;}
 </style>
 </head>
 <body>
-<div id="menu">
-<h1>Sacrifices Must Be Made</h1>
-<button id="startBtn">Start Game</button>
-</div>
 <canvas id="game" width="800" height="450"></canvas>
 <div id="hud">
 Influence: <div class="meter"><i id="infBar"></i></div>
 Guilt: <div class="meter"><i id="guiltBar"></i></div>
 </div>
+<div id="dialogBox"></div>
 <script>
 // Canvas
-const canvas=document.getElementById('game');
-const ctx=canvas.getContext('2d');
-const TILE=32,W=canvas.width,H=canvas.height;
+const canvas = document.getElementById('game');
+const ctx = canvas.getContext('2d');
+const TILE = 32, W = canvas.width, H = canvas.height;
 
-// Game
-let influence=0,guilt=0,gameStarted=false;
-const player={x:100,y:350,w:28,h:36,vx:0,vy:0,onGround:false};
+// Game state
+let influence = 0, guilt = 0, gameStarted = true, dialogActive = false;
+const player = {x:50, y:350, w:28, h:36, vx:0, vy:0, onGround:false};
 
-// Simple map
-const MAP_W=25,MAP_H=12;
-const map=Array.from({length:MAP_H},(_,y)=>Array.from({length:MAP_W},(_,x)=>y===MAP_H-1?1:0));
+// Map
+const MAP_W = 25, MAP_H = 12;
+const map = Array.from({length:MAP_H}, (_, y) => Array.from({length:MAP_W}, (_, x) => y === MAP_H-1 ? 1 : 0));
 
 // Camera
-const cam={x:0,y:0,w:W,h:H};
+const cam = {x:0, y:0, w:W, h:H};
+
+// NPC
+const npc = {x:400, y:350, w:28, h:36, dialog:["Hey, want to prove loyalty? Press E!","You sacrificed something dear."]};
 
 // Input
-const keys={};
-window.addEventListener('keydown',e=>keys[e.key.toLowerCase()]=true);
-window.addEventListener('keyup',e=>keys[e.key.toLowerCase()]=false);
+const keys = {};
+window.addEventListener('keydown', e => keys[e.key.toLowerCase()] = true);
+window.addEventListener('keyup', e => keys[e.key.toLowerCase()] = false);
 
 // HUD
 function updateHUD(){
-document.getElementById('infBar').style.width=Math.min(100,influence)+"%";
-document.getElementById('guiltBar').style.width=Math.min(100,guilt)+"%";
+  document.getElementById('infBar').style.width = Math.min(100, influence) + "%";
+  document.getElementById('guiltBar').style.width = Math.min(100, guilt) + "%";
 }
 
 // Collision
 function isSolid(x,y,w,h){
-const left=Math.floor(x/TILE), right=Math.floor((x+w-1)/TILE);
-const top=Math.floor(y/TILE), bottom=Math.floor((y+h-1)/TILE);
-for(let ty=top;ty<=bottom;ty++){
-for(let tx=left;tx<=right;tx++){
-if(map[ty]&&map[ty][tx]>0)return true;
-}
-}
-return false;
+  const left = Math.floor(x/TILE), right=Math.floor((x+w-1)/TILE);
+  const top = Math.floor(y/TILE), bottom=Math.floor((y+h-1)/TILE);
+  for(let ty=top;ty<=bottom;ty++){
+    for(let tx=left;tx<=right;tx++){
+      if(map[ty] && map[ty][tx]>0) return true;
+    }
+  }
+  return false;
 }
 
-// Start menu
-document.getElementById('startBtn').addEventListener('click',()=>{
-document.getElementById('menu').style.display='none';
-gameStarted=true;
-});
+// Dialogue
+const dialogBox = document.getElementById('dialogBox');
+let dialogQueue = [];
+function queueDialog(lines){
+  dialogQueue.push(...lines);
+  if(!dialogActive) showNextDialog();
+}
+function showNextDialog(){
+  if(dialogQueue.length === 0){ dialogActive=false; dialogBox.style.display='none'; return; }
+  dialogActive = true;
+  dialogBox.style.display='block';
+  dialogBox.innerHTML = dialogQueue.shift();
+}
 
 // Update
 function update(){
-if(!gameStarted)return;
-const speed=2;
-if(keys['arrowleft']||keys['a'])player.vx=-speed;
-else if(keys['arrowright']||keys['d'])player.vx=speed;
-else player.vx=0;
-if((keys['arrowup']||keys['w'])&&player.onGround)player.vy=-7,player.onGround=false;
-// Gravity
-player.vy+=0.3;if(player.vy>10)player.vy=10;
-// Move X
-let nx=player.x+player.vx;if(!isSolid(nx,player.y,player.w,player.h))player.x=nx;
-// Move Y
-let ny=player.y+player.vy;if(!isSolid(player.x,ny,player.w,player.h)){player.y=ny;player.onGround=false;}else{player.onGround=true;player.vy=0;}
-// Camera
-cam.x=Math.max(0,Math.min(MAP_W*TILE-W,player.x-W/2+player.w/2));
-cam.y=0;
-
-// Simple influence/guilt increase when reaching end
-if(player.x>MAP_W*TILE-50){influence=100;guilt=50;}
+  const speed = 2;
+  // Movement
+  player.vx = 0;
+  if(keys['a']) player.vx = -speed;
+  if(keys['d']) player.vx = speed;
+  if(keys['w'] && player.onGround) player.vy = -7, player.onGround=false;
+  // Gravity
+  player.vy += 0.3; if(player.vy>10) player.vy=10;
+  // Move X
+  let nx = player.x + player.vx;
+  if(!isSolid(nx, player.y, player.w, player.h)) player.x = nx;
+  // Move Y
+  let ny = player.y + player.vy;
+  if(!isSolid(player.x, ny, player.w, player.h)){ player.y = ny; player.onGround=false; }
+  else{ player.onGround = true; player.vy=0; }
+  // Camera
+  cam.x = Math.max(0, Math.min(MAP_W*TILE - W, player.x - W/2 + player.w/2));
+  cam.y = 0;
+  // NPC interaction
+  const dx = player.x + player.w/2 - (npc.x + npc.w/2);
+  const dy = player.y + player.h/2 - (npc.y + npc.h/2);
+  if(Math.hypot(dx, dy) < 50 && keys['e']){
+    queueDialog(npc.dialog);
+    influence += 30;
+    guilt += 20;
+  }
 }
 
 // Render
 function render(){
-ctx.fillStyle="#071018";ctx.fillRect(0,0,W,H);
-// Tiles
-ctx.fillStyle="#1e1f24";
-for(let y=0;y<MAP_H;y++){
-for(let x=0;x<MAP_W;x++){
-if(map[y][x]>0)ctx.fillRect(x*TILE-cam.x,y*TILE-cam.y,TILE,TILE);
-}
-}
-// Player
-ctx.fillStyle="#6b4e3d";ctx.fillRect(player.x-cam.x,player.y-cam.y,player.w,player.h);
+  ctx.fillStyle="#071018"; ctx.fillRect(0,0,W,H);
+  // Tiles
+  ctx.fillStyle="#1e1f24";
+  for(let y=0;y<MAP_H;y++){
+    for(let x=0;x<MAP_W;x++){
+      if(map[y][x]>0) ctx.fillRect(x*TILE-cam.x,y*TILE-cam.y,TILE,TILE);
+    }
+  }
+  // NPC
+  ctx.fillStyle="#ff4444";
+  ctx.fillRect(npc.x-cam.x, npc.y-cam.y, npc.w, npc.h);
+  // Player
+  ctx.fillStyle="#6b4e3d";
+  ctx.fillRect(player.x-cam.x, player.y-cam.y, player.w, player.h);
 }
 
 // Loop
-function loop(){update();render();updateHUD();requestAnimationFrame(loop);}
+function loop(){ update(); render(); updateHUD(); requestAnimationFrame(loop);}
 loop();
 </script>
 </body>
